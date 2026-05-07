@@ -68,7 +68,7 @@ export function GiftNiftyExpiry({ giftNifty, indicativeNifty, nearestExpiries }:
                   </span>
                 </div>
               )}
-              {giftNifty.timestamp && <p className="text-[10px] text-muted-foreground font-mono">{giftNifty.timestamp}</p>}
+              {giftNifty.timestamp && <p className="text-xs text-muted-foreground font-mono">{giftNifty.timestamp}</p>}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">GIFT Nifty data unavailable</p>
@@ -104,7 +104,7 @@ export function GiftNiftyExpiry({ giftNifty, indicativeNifty, nearestExpiries }:
                     <TableCell className="py-2">{c.lotSize}</TableCell>
                     <TableCell className="text-right text-muted-foreground py-2">{c.expiry ? new Date(c.expiry).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"}</TableCell>
                     <TableCell className="text-right py-2 px-5">
-                      <span className={`px-2 py-1 rounded-md text-[10px] font-medium shadow-sm ${isUrgent ? "bg-bearish/15 text-bearish font-bold shadow-[inset_0_0_8px_rgba(255,50,50,0.2)]" : "bg-warning/10 text-warning"}`}>{c.timeLeft}</span>
+                      <span className={`px-2 py-1 rounded-md text-xs font-medium shadow-sm ${isUrgent ? "bg-bearish/15 text-bearish font-bold shadow-[inset_0_0_8px_rgba(255,50,50,0.2)]" : "bg-warning/10 text-warning"}`}>{c.timeLeft}</span>
                     </TableCell>
                   </TableRow>
                 );
@@ -140,7 +140,7 @@ export function GiftNiftyExpiry({ giftNifty, indicativeNifty, nearestExpiries }:
                   <TableCell className="py-2">{c.lotSize}</TableCell>
                   <TableCell className="text-right text-muted-foreground py-2">{c.expiry ? new Date(c.expiry).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "—"}</TableCell>
                   <TableCell className="text-right py-2 px-5">
-                    <span className="px-2 py-1 rounded-md text-[10px] bg-accent/80 text-muted-foreground font-medium shadow-sm">{c.timeLeft}</span>
+                    <span className="px-2 py-1 rounded-md text-xs bg-accent/80 text-muted-foreground font-medium shadow-sm">{c.timeLeft}</span>
                   </TableCell>
                 </TableRow>
               ))}

@@ -90,7 +90,7 @@ export function SectorHeatmap() {
         <CardTitle className="text-base flex items-center gap-2">
           <BarChart3 className="h-5 w-5 text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" /> Sector Performance
           {source && (
-            <Badge variant="outline" className="text-[10px] h-5 px-2 border-bullish/30 text-bullish ml-auto">
+            <Badge variant="outline" className="text-xs h-5 px-2 border-bullish/30 text-bullish ml-auto">
               {source}
             </Badge>
           )}
@@ -128,7 +128,7 @@ export function SectorHeatmap() {
                 )}
                 {/* Best/Worst label */}
                 {(isBest || isWorst) && (
-                  <span className={`text-[10px] font-bold uppercase tracking-wider mt-1 inline-block ${isBest ? "text-bullish drop-shadow-sm" : "text-bearish drop-shadow-sm"}`}>
+                  <span className={`text-xs font-bold uppercase tracking-wider mt-1 inline-block ${isBest ? "text-bullish drop-shadow-sm" : "text-bearish drop-shadow-sm"}`}>
                     {isBest ? "★ BEST" : "★ WORST"}
                   </span>
                 )}

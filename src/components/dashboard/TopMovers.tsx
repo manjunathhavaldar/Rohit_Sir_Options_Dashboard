@@ -20,7 +20,7 @@ export function TopMovers() {
           <CardTitle className="text-base flex items-center gap-2">
             <ArrowUpRight className="h-5 w-5 text-bullish drop-shadow-[0_0_8px_rgba(0,255,100,0.5)]" /> Top Gainers
             <span className="text-xs text-muted-foreground font-normal">({gainers.length})</span>
-            {isLive && <Badge variant="outline" className="text-[10px] h-5 px-2 border-bullish/30 text-bullish ml-auto">LIVE</Badge>}
+            {isLive && <Badge variant="outline" className="text-xs h-5 px-2 border-bullish/30 text-bullish ml-auto">LIVE</Badge>}
             {isLoading && <Loader2 className="h-4 w-4 animate-spin ml-auto text-muted-foreground" />}
           </CardTitle>
         </CardHeader>
@@ -71,7 +71,7 @@ export function TopMovers() {
           <CardTitle className="text-base flex items-center gap-2">
             <ArrowDownRight className="h-5 w-5 text-bearish drop-shadow-[0_0_8px_rgba(255,50,50,0.5)]" /> Top Losers
             <span className="text-xs text-muted-foreground font-normal">({losers.length})</span>
-            {isLive && <Badge variant="outline" className="text-[10px] h-5 px-2 border-bearish/30 text-bearish ml-auto">LIVE</Badge>}
+            {isLive && <Badge variant="outline" className="text-xs h-5 px-2 border-bearish/30 text-bearish ml-auto">LIVE</Badge>}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0 pb-1">

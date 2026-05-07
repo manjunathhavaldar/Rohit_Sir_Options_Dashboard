@@ -14,7 +14,7 @@ export function IVRankBadge({ ivRank, ivPercentile }: { ivRank: number; ivPercen
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Badge variant="outline" className={`text-[9px] font-mono gap-1 ${bgColor} ${color} cursor-help`}>
+        <Badge variant="outline" className={`text-[11px] font-mono gap-1 ${bgColor} ${color} cursor-help`}>
           IVR {ivRank}
         </Badge>
       </TooltipTrigger>
@@ -36,14 +36,14 @@ export function IVRankCard({ symbol, currentIV }: { symbol: string; currentIV: n
       <CardContent className="pt-3 pb-3">
         <div className="flex items-center gap-1.5 mb-1">
           <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
-          <p className="text-[10px] text-muted-foreground">IV Rank</p>
+          <p className="text-xs text-muted-foreground">IV Rank</p>
         </div>
         <p className={`text-lg font-bold font-mono ${color}`}>{data.ivRank}%</p>
         <div className="mt-1.5">
           <div className="relative h-1.5 rounded-full bg-accent overflow-hidden">
             <div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-bullish via-warning to-bearish" style={{ width: `${data.ivRank}%` }} />
           </div>
-          <div className="flex justify-between text-[8px] text-muted-foreground font-mono mt-0.5">
+          <div className="flex justify-between text-xs text-muted-foreground font-mono mt-0.5">
             <span>{data.iv52Low.toFixed(1)}</span>
             <span>{data.iv52High.toFixed(1)}</span>
           </div>
@@ -98,13 +98,13 @@ export function IVRankDashboard() {
                 </div>
 
                 <span className={`text-xs font-mono font-bold w-12 text-right ${rankColor}`}>{d.ivRank}%</span>
-                <span className="text-[10px] text-muted-foreground font-mono w-14 text-right">P:{d.ivPercentile}%</span>
-                <span className="text-[10px] font-mono w-14 text-right">{d.currentIV.toFixed(1)}%</span>
-                <span className="text-[10px] text-muted-foreground font-mono w-20 text-right">{d.iv52Low.toFixed(1)}-{d.iv52High.toFixed(1)}</span>
-                <span className={`text-[10px] font-mono font-medium w-12 text-right ${vrpColor}`}>
+                <span className="text-xs text-muted-foreground font-mono w-14 text-right">P:{d.ivPercentile}%</span>
+                <span className="text-xs font-mono w-14 text-right">{d.currentIV.toFixed(1)}%</span>
+                <span className="text-xs text-muted-foreground font-mono w-20 text-right">{d.iv52Low.toFixed(1)}-{d.iv52High.toFixed(1)}</span>
+                <span className={`text-xs font-mono font-medium w-12 text-right ${vrpColor}`}>
                   {d.vrp > 0 ? "+" : ""}{d.vrp.toFixed(1)}
                 </span>
-                <Badge variant="outline" className={`text-[8px] w-14 justify-center ${d.vrp > 2 ? "border-bullish/30 text-bullish" : d.vrp < -2 ? "border-bearish/30 text-bearish" : "border-muted-foreground/30"}`}>
+                <Badge variant="outline" className={`text-xs w-14 justify-center ${d.vrp > 2 ? "border-bullish/30 text-bullish" : d.vrp < -2 ? "border-bearish/30 text-bearish" : "border-muted-foreground/30"}`}>
                   {d.vrp > 2 ? "SELL IV" : d.vrp < -2 ? "BUY IV" : "FAIR"}
                 </Badge>
               </div>
@@ -113,7 +113,7 @@ export function IVRankDashboard() {
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 mt-3 text-[9px] text-muted-foreground">
+        <div className="flex items-center gap-4 mt-3 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-bullish" />IVR &lt; 20 (Low)</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-warning" />IVR 20-50 (Moderate)</span>
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-bearish" />IVR &gt; 50 (High)</span>

@@ -102,12 +102,12 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
           <SheetTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4" /> Alerts
-              <Badge variant="outline" className="text-[9px]">{alerts.filter(a => a.active).length} active</Badge>
+              <Badge variant="outline" className="text-[11px]">{alerts.filter(a => a.active).length} active</Badge>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={testSound}
-                className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 Test 🔊
               </button>
@@ -142,10 +142,10 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-medium">{alert.symbol}</span>
-                  <Badge variant="outline" className="text-[8px] h-3.5 px-1">{typeLabels[alert.type]}</Badge>
-                  {alert.triggered && <Badge className="text-[8px] h-3.5 px-1 bg-warning text-warning-foreground">TRIGGERED</Badge>}
+                  <Badge variant="outline" className="text-xs h-3.5 px-1">{typeLabels[alert.type]}</Badge>
+                  {alert.triggered && <Badge className="text-xs h-3.5 px-1 bg-warning text-warning-foreground">TRIGGERED</Badge>}
                 </div>
-                <p className="text-[10px] text-muted-foreground font-mono">
+                <p className="text-xs text-muted-foreground font-mono">
                   {alert.condition} {alert.value}
                 </p>
               </div>
@@ -165,9 +165,9 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
             <form onSubmit={addAlert} className="p-3 rounded-md border bg-accent/30 space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-[9px]">Symbol</Label>
+                  <Label className="text-[11px]">Symbol</Label>
                   <Select name="symbol" defaultValue="NIFTY">
-                    <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {["NIFTY", "BANKNIFTY", "FINNIFTY", "MIDCPNIFTY"].map(s => (
                         <SelectItem key={s} value={s}>{s}</SelectItem>
@@ -176,9 +176,9 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[9px]">Type</Label>
+                  <Label className="text-[11px]">Type</Label>
                   <Select name="type" defaultValue="price">
-                    <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {Object.entries(typeLabels).map(([k, v]) => (
                         <SelectItem key={k} value={k}>{v}</SelectItem>
@@ -189,9 +189,9 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <Label className="text-[9px]">Condition</Label>
+                  <Label className="text-[11px]">Condition</Label>
                   <Select name="condition" defaultValue="above">
-                    <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="above">Above</SelectItem>
                       <SelectItem value="below">Below</SelectItem>
@@ -199,8 +199,8 @@ export function AlertSystem({ open, onOpenChange }: AlertSystemProps) {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-[9px]">Value</Label>
-                  <Input name="value" type="number" defaultValue={24500} className="h-7 text-[10px] font-mono" />
+                  <Label className="text-[11px]">Value</Label>
+                  <Input name="value" type="number" defaultValue={24500} className="h-7 text-xs font-mono" />
                 </div>
               </div>
               <div className="flex gap-2">

@@ -13,7 +13,7 @@ import {
   Download, Loader2, CheckCircle2, AlertCircle, Search, CandlestickChart,
   FileDown, Clock, BarChart3, TrendingUp, Database, XCircle, CheckSquare, Square,
 } from "lucide-react";
-import { fetchHistoricalCandles } from "@/lib/marketApi";
+import { fetchHistoricalCandles, fetchYahooChart } from "@/lib/marketApi";
 import {
   saveCandleHistory, setMetadata,
   type CandleHistory, type CandleData,
@@ -192,30 +192,66 @@ export function ChartDataDownloader() {
       setCurrentSymbol(sym.symbol);
 
       try {
-        const result = await fetchHistoricalCandles(
-          sym.securityId,
-          sym.segment,
-          sym.instrument,
-          dhanInterval,
-          fromDate,
-          toDate,
-        );
+        let rawData: any = null;
+        let source = "yahoo";
 
-        const rawData = result?.data || result;
-        let candleCount = 0;
+        // ── Try Yahoo Finance first (free, no API key, no rate limits) ──
+        try {
+          const yahooResult = await fetchYahooChart(
+            sym.symbol,
+            dhanInterval,
+            fromDate,
+            toDate,
+          );
+          const yd = yahooResult?.data || yahooResult;
+          if (yd?.close && Array.isArray(yd.close) && yd.close.filter((v: any) => v != null).length > 0) {
+            rawData = yd;
+            source = "yahoo";
+          }
+        } catch (yahooErr: any) {
+          console.warn(`Yahoo failed for ${sym.symbol}:`, yahooErr.message);
+        }
 
-        if (rawData?.close && Array.isArray(rawData.close) && rawData.close.length > 0) {
-          const candles: CandleData[] = rawData.close.map((_: number, idx: number) => ({
-            timestamp: (rawData.timestamp?.[idx] || rawData.start_Time?.[idx] || 0) * 1000,
-            open: rawData.open?.[idx] || rawData.close[idx],
-            high: rawData.high?.[idx] || rawData.close[idx],
-            low: rawData.low?.[idx] || rawData.close[idx],
-            close: rawData.close[idx],
-            volume: rawData.volume?.[idx] || 0,
-            oi: rawData.oi?.[idx],
-          }));
+        // ── Fallback to Dhan if Yahoo didn't return data ──
+        if (!rawData) {
+          try {
+            const dhanResult = await fetchHistoricalCandles(
+              sym.securityId,
+              sym.segment,
+              sym.instrument,
+              dhanInterval,
+              fromDate,
+              toDate,
+            );
+            const dd = dhanResult?.data || dhanResult;
+            if (dd?.close && Array.isArray(dd.close) && dd.close.length > 0) {
+              rawData = dd;
+              source = "dhan";
+            }
+          } catch (dhanErr: any) {
+            console.warn(`Dhan also failed for ${sym.symbol}:`, dhanErr.message);
+          }
+        }
 
-          candleCount = candles.length;
+        if (rawData?.close && Array.isArray(rawData.close) && rawData.close.filter((v: any) => v != null).length > 0) {
+          const candles: CandleData[] = rawData.close
+            .map((_: number, idx: number) => {
+              // Skip null candles (Yahoo sometimes returns null for holidays)
+              if (rawData.close[idx] == null) return null;
+              // Yahoo timestamps are Unix seconds, Dhan may also be seconds
+              const ts = rawData.timestamp?.[idx] || rawData.start_Time?.[idx] || 0;
+              const timestamp = ts > 1e12 ? ts : ts * 1000; // Convert to ms if in seconds
+              return {
+                timestamp,
+                open: rawData.open?.[idx] || rawData.close[idx],
+                high: rawData.high?.[idx] || rawData.close[idx],
+                low: rawData.low?.[idx] || rawData.close[idx],
+                close: rawData.close[idx],
+                volume: rawData.volume?.[idx] || 0,
+                oi: rawData.oi?.[idx],
+              };
+            })
+            .filter(Boolean) as CandleData[];
 
           // Store in IndexedDB
           const history: CandleHistory = {
@@ -228,9 +264,9 @@ export function ChartDataDownloader() {
           };
           await saveCandleHistory(history);
 
-          newResults.push({ symbol: sym.symbol, status: "done", candles: candleCount });
+          newResults.push({ symbol: sym.symbol, status: "done", candles: candles.length });
         } else {
-          newResults.push({ symbol: sym.symbol, status: "skipped", candles: 0, error: "No data returned" });
+          newResults.push({ symbol: sym.symbol, status: "skipped", candles: 0, error: "No data from Yahoo or Dhan" });
         }
       } catch (err: any) {
         newResults.push({ symbol: sym.symbol, status: "error", candles: 0, error: err.message || "Fetch failed" });
@@ -273,7 +309,7 @@ export function ChartDataDownloader() {
         <CardTitle className="text-base flex items-center gap-2">
           <CandlestickChart className="h-5 w-5 text-primary" />
           Chart Data Downloader
-          <Badge variant="outline" className="text-[9px] h-5 px-1.5 ml-auto">
+          <Badge variant="outline" className="text-[11px] h-5 px-1.5 ml-auto">
             {selectedCount}/{totalSymbols} selected
           </Badge>
         </CardTitle>
@@ -286,7 +322,7 @@ export function ChartDataDownloader() {
         {/* ── Timeframe & Interval Selectors ── */}
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground flex items-center gap-1">
               <Clock className="h-3 w-3" /> Timeframe (Date Range)
             </Label>
             <Select value={timeframe} onValueChange={setTimeframe} disabled={isDownloading}>
@@ -301,7 +337,7 @@ export function ChartDataDownloader() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground flex items-center gap-1">
               <BarChart3 className="h-3 w-3" /> Candle Interval
             </Label>
             <Select value={interval} onValueChange={setInterval} disabled={isDownloading}>
@@ -330,13 +366,13 @@ export function ChartDataDownloader() {
                 disabled={isDownloading}
               />
             </div>
-            <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={selectAll} disabled={isDownloading}>
+            <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={selectAll} disabled={isDownloading}>
               <CheckSquare className="h-3 w-3" /> All
             </Button>
-            <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={selectIndices} disabled={isDownloading}>
+            <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={selectIndices} disabled={isDownloading}>
               <TrendingUp className="h-3 w-3" /> Indices
             </Button>
-            <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={deselectAll} disabled={isDownloading}>
+            <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={deselectAll} disabled={isDownloading}>
               <Square className="h-3 w-3" /> None
             </Button>
           </div>
@@ -370,7 +406,7 @@ export function ChartDataDownloader() {
                     />
                     <span className="font-mono font-medium truncate">{sym.symbol}</span>
                     {sym.category === "Index" && (
-                      <Badge variant="outline" className="text-[7px] h-3 px-1 shrink-0">IDX</Badge>
+                      <Badge variant="outline" className="text-[11px] h-3 px-1 shrink-0">IDX</Badge>
                     )}
                     {statusIcon}
                   </label>
@@ -407,7 +443,7 @@ export function ChartDataDownloader() {
                 <CheckCircle2 className="h-3.5 w-3.5 text-bullish" />
                 Download Complete
               </span>
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-xs">
                 {doneCount} success · {errorCount} errors · {results.reduce((s, r) => s + r.candles, 0).toLocaleString()} candles
               </Badge>
             </div>
@@ -451,7 +487,7 @@ export function ChartDataDownloader() {
               { icon: <BarChart3 className="h-2.5 w-2.5" />, text: `${INTERVALS.find(i => i.value === interval)?.label} interval candles` },
               { icon: <FileDown className="h-2.5 w-2.5" />, text: "Export individual symbols as CSV" },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 {item.icon}
                 <span>{item.text}</span>
               </div>

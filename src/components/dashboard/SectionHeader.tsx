@@ -9,14 +9,18 @@ interface Props {
 
 export function SectionHeader({ title, subtitle, icon, tooltip }: Props) {
   return (
-    <div className="flex items-center gap-2 pt-3 pb-1">
+    <div className="flex items-center gap-2.5 pt-5 pb-2">
       {icon && <span className="text-primary">{icon}</span>}
-      <div className="flex items-center gap-1.5">
-        <h2 className="text-base font-bold text-foreground tracking-tight drop-shadow-sm">{title}</h2>
+      <div className="flex min-w-0 items-center gap-2">
+        <h2 className="text-[17px] font-bold leading-tight text-foreground">{title}</h2>
         {tooltip && <InfoTooltip text={tooltip} />}
       </div>
-      {subtitle && <p className="text-xs text-muted-foreground hidden sm:block">— {subtitle}</p>}
-      <div className="flex-1 h-px bg-border ml-3 shadow-[0_1px_2px_rgba(255,255,255,0.05)]" />
+      {subtitle && (
+        <p className="hidden truncate text-xs font-medium leading-none text-muted-foreground/80 sm:block">
+          {subtitle}
+        </p>
+      )}
+      <div className="ml-2 h-px flex-1 bg-gradient-to-r from-border/80 via-border/35 to-transparent" />
     </div>
   );
 }

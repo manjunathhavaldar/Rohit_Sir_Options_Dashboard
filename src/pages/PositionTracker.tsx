@@ -61,7 +61,7 @@ function EditableCell({ value, onSave, prefix = "", suffix = "", className = "" 
           if (e.key === "Escape") setEditing(false);
         }}
         onBlur={() => { onSave(Number(editVal)); setEditing(false); }}
-        className="h-5 w-[70px] text-[10px] font-mono px-1"
+        className="h-5 w-[70px] text-xs font-mono px-1"
         step="0.05"
       />
     </div>
@@ -264,21 +264,21 @@ export default function PositionTracker() {
           <h1 className="text-2xl font-bold tracking-tight">Position Tracker</h1>
           <p className="text-sm text-muted-foreground">
             Live P&L · P&L Simulator · Greeks Decay · Portfolio Risk
-            {positions.length > 0 && <Badge variant="outline" className="ml-2 text-[9px]">{positions.length} active</Badge>}
-            {closedPositions.length > 0 && <Badge variant="outline" className="ml-1 text-[9px]">{closedPositions.length} closed</Badge>}
+            {positions.length > 0 && <Badge variant="outline" className="ml-2 text-[11px]">{positions.length} active</Badge>}
+            {closedPositions.length > 0 && <Badge variant="outline" className="ml-1 text-[11px]">{closedPositions.length} closed</Badge>}
           </p>
         </div>
         <div className="flex items-center gap-1.5">
-          <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={handleExport}>
+          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={handleExport}>
             <Download className="h-3 w-3" /> Export
           </Button>
-          <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={handleImport}>
+          <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={handleImport}>
             <Upload className="h-3 w-3" /> Import
           </Button>
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1 text-destructive hover:text-destructive">
+              <Button variant="outline" size="sm" className="h-7 text-xs gap-1 text-destructive hover:text-destructive">
                 <Trash2 className="h-3 w-3" /> Clear All
               </Button>
             </AlertDialogTrigger>
@@ -293,7 +293,7 @@ export default function PositionTracker() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <Button size="sm" className="h-7 text-[10px] gap-1" onClick={() => setShowAddForm(!showAddForm)}>
+          <Button size="sm" className="h-7 text-xs gap-1" onClick={() => setShowAddForm(!showAddForm)}>
             <Plus className="h-3 w-3" /> Add Position
           </Button>
         </div>
@@ -313,9 +313,9 @@ export default function PositionTracker() {
           <CardContent>
             <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
               <div>
-                <Label className="text-[9px]">Symbol</Label>
+                <Label className="text-[11px]">Symbol</Label>
                 <Select value={formSymbol} onValueChange={setFormSymbol}>
-                  <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent className="max-h-[200px]">
                     {AVAILABLE_SYMBOLS.map(s => (
                       <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>
@@ -324,38 +324,38 @@ export default function PositionTracker() {
                 </Select>
               </div>
               <div>
-                <Label className="text-[9px]">Type</Label>
+                <Label className="text-[11px]">Type</Label>
                 <Select value={formType} onValueChange={v => setFormType(v as "CE" | "PE")}>
-                  <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="CE">CE</SelectItem><SelectItem value="PE">PE</SelectItem></SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-[9px]">Action</Label>
+                <Label className="text-[11px]">Action</Label>
                 <Select value={formAction} onValueChange={v => setFormAction(v as "BUY" | "SELL")}>
-                  <SelectTrigger className="h-7 text-[10px]"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent><SelectItem value="BUY">BUY</SelectItem><SelectItem value="SELL">SELL</SelectItem></SelectContent>
                 </Select>
               </div>
               <div>
-                <Label className="text-[9px]">Strike</Label>
-                <Input value={formStrike} onChange={e => setFormStrike(e.target.value)} type="number" className="h-7 text-[10px] font-mono" />
+                <Label className="text-[11px]">Strike</Label>
+                <Input value={formStrike} onChange={e => setFormStrike(e.target.value)} type="number" className="h-7 text-xs font-mono" />
               </div>
               <div>
-                <Label className="text-[9px]">Lots ({getLotSize(formSymbol)}/lot)</Label>
-                <Input value={formLots} onChange={e => setFormLots(e.target.value)} type="number" min={1} className="h-7 text-[10px] font-mono" />
+                <Label className="text-[11px]">Lots ({getLotSize(formSymbol)}/lot)</Label>
+                <Input value={formLots} onChange={e => setFormLots(e.target.value)} type="number" min={1} className="h-7 text-xs font-mono" />
               </div>
               <div>
-                <Label className="text-[9px]">Entry ₹</Label>
-                <Input value={formEntry} onChange={e => setFormEntry(e.target.value)} type="number" step="0.05" className="h-7 text-[10px] font-mono" />
+                <Label className="text-[11px]">Entry ₹</Label>
+                <Input value={formEntry} onChange={e => setFormEntry(e.target.value)} type="number" step="0.05" className="h-7 text-xs font-mono" />
               </div>
               <div>
-                <Label className="text-[9px]">CMP ₹</Label>
-                <Input value={formCmp} onChange={e => setFormCmp(e.target.value)} type="number" step="0.05" className="h-7 text-[10px] font-mono" />
+                <Label className="text-[11px]">CMP ₹</Label>
+                <Input value={formCmp} onChange={e => setFormCmp(e.target.value)} type="number" step="0.05" className="h-7 text-xs font-mono" />
               </div>
               <div>
-                <Label className="text-[9px]">Expiry</Label>
-                <Input value={formExpiry} onChange={e => setFormExpiry(e.target.value)} placeholder="27 Mar" className="h-7 text-[10px]" />
+                <Label className="text-[11px]">Expiry</Label>
+                <Input value={formExpiry} onChange={e => setFormExpiry(e.target.value)} placeholder="27 Mar" className="h-7 text-xs" />
               </div>
               <div className="flex items-end">
                 <Button size="sm" className="h-7 text-xs w-full gap-1" onClick={handleAddPosition}>
@@ -363,7 +363,7 @@ export default function PositionTracker() {
                 </Button>
               </div>
             </div>
-            <p className="text-[9px] text-muted-foreground mt-1.5">
+            <p className="text-[11px] text-muted-foreground mt-1.5">
               Lot size: {getLotSize(formSymbol)} | Total qty: {Number(formLots) * getLotSize(formSymbol)} | Investment: ₹{(Number(formEntry) * Number(formLots) * getLotSize(formSymbol)).toLocaleString("en-IN")}
             </p>
           </CardContent>
@@ -374,43 +374,43 @@ export default function PositionTracker() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 stagger-children">
         <Card className={`transition-all duration-200 hover:shadow-md ${stats.totalPnl >= 0 ? "border-bullish/20 hover:border-bullish/40" : "border-bearish/20 hover:border-bearish/40"}`}>
           <CardContent className="pt-3 pb-3 text-center">
-            <p className="text-[9px] text-muted-foreground flex items-center justify-center gap-1"><DollarSign className="h-3 w-3" /> Total P&L</p>
+            <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1"><DollarSign className="h-3 w-3" /> Total P&L</p>
             <p className={`text-xl font-bold font-mono ${stats.totalPnl >= 0 ? "text-bullish" : "text-bearish"}`}>
               {stats.totalPnl >= 0 ? "+" : ""}₹{stats.totalPnl.toLocaleString("en-IN")}
             </p>
-            <p className={`text-[10px] font-mono ${stats.totalPnl >= 0 ? "text-bullish" : "text-bearish"}`}>{stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent}%</p>
+            <p className={`text-xs font-mono ${stats.totalPnl >= 0 ? "text-bullish" : "text-bearish"}`}>{stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent}%</p>
           </CardContent>
         </Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Net Delta</p>
+          <p className="text-[11px] text-muted-foreground">Net Delta</p>
           <p className={`text-lg font-bold font-mono ${stats.totalDelta >= 0 ? "text-bullish" : "text-bearish"}`}>{stats.totalDelta}</p>
-          <p className="text-[8px] text-muted-foreground/60">{stats.totalDelta >= 0 ? "Net Long" : "Net Short"}</p>
+          <p className="text-xs text-muted-foreground/60">{stats.totalDelta >= 0 ? "Net Long" : "Net Short"}</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Net Theta</p>
+          <p className="text-[11px] text-muted-foreground">Net Theta</p>
           <p className={`text-lg font-bold font-mono ${stats.totalTheta >= 0 ? "text-bullish" : "text-bearish"}`}>₹{stats.totalTheta}/d</p>
-          <p className="text-[8px] text-muted-foreground/60">{stats.totalTheta >= 0 ? "Earning daily" : "Decaying daily"}</p>
+          <p className="text-xs text-muted-foreground/60">{stats.totalTheta >= 0 ? "Earning daily" : "Decaying daily"}</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Net Vega</p>
+          <p className="text-[11px] text-muted-foreground">Net Vega</p>
           <p className={`text-lg font-bold font-mono ${stats.totalVega >= 0 ? "text-bullish" : "text-bearish"}`}>₹{stats.totalVega}</p>
-          <p className="text-[8px] text-muted-foreground/60">{stats.totalVega >= 0 ? "Long vol" : "Short vol"}</p>
+          <p className="text-xs text-muted-foreground/60">{stats.totalVega >= 0 ? "Long vol" : "Short vol"}</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Investment</p>
+          <p className="text-[11px] text-muted-foreground">Investment</p>
           <p className="text-lg font-bold font-mono">₹{(stats.totalInvestment / 1000).toFixed(1)}K</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Margin</p>
+          <p className="text-[11px] text-muted-foreground">Margin</p>
           <p className="text-lg font-bold font-mono">₹{(stats.totalMargin / 1000).toFixed(0)}K</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground">Win Rate</p>
+          <p className="text-[11px] text-muted-foreground">Win Rate</p>
           <p className={`text-lg font-bold font-mono ${stats.winRate >= 50 ? "text-bullish" : "text-bearish"}`}>{stats.winRate}%</p>
-          <p className="text-[9px] text-muted-foreground">{stats.winners}W/{stats.losers}L</p>
+          <p className="text-[11px] text-muted-foreground">{stats.winners}W/{stats.losers}L</p>
         </CardContent></Card>
         <Card className="transition-all duration-200 hover:shadow-sm"><CardContent className="pt-3 pb-3 text-center">
-          <p className="text-[9px] text-muted-foreground flex items-center justify-center gap-1"><Shield className="h-3 w-3" /> Risk</p>
+          <p className="text-[11px] text-muted-foreground flex items-center justify-center gap-1"><Shield className="h-3 w-3" /> Risk</p>
           <p className={`text-lg font-bold font-mono ${Math.abs(stats.totalDelta) > 500 ? "text-bearish" : "text-bullish"}`}>
             {Math.abs(stats.totalDelta) > 500 ? "High" : Math.abs(stats.totalDelta) > 200 ? "Med" : "Low"}
           </p>
@@ -430,12 +430,12 @@ export default function PositionTracker() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" /> P&L at Expiry — {activeSimSymbol} Positions</CardTitle>
-                  <p className="text-[10px] text-muted-foreground">Shows combined P&L across all {activeSimSymbol} legs as spot moves ±5%</p>
+                  <p className="text-xs text-muted-foreground">Shows combined P&L across all {activeSimSymbol} legs as spot moves ±5%</p>
                 </div>
                 <div className="flex items-center gap-2">
                   {availableSimSymbols.length > 1 && (
                     <Select value={activeSimSymbol} onValueChange={v => { setSimSymbol(v); setSimSpotOverride(""); }}>
-                      <SelectTrigger className="h-7 w-[120px] text-[10px]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-7 w-[120px] text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {availableSimSymbols.map(s => (
                           <SelectItem key={s} value={s} className="text-xs">{s} ({grouped[s]?.length} legs)</SelectItem>
@@ -443,7 +443,7 @@ export default function PositionTracker() {
                       </SelectContent>
                     </Select>
                   )}
-                  <Label className="text-[9px]">Spot:</Label>
+                  <Label className="text-[11px]">Spot:</Label>
                   <Input
                     type="number"
                     value={simSpotOverride || simSpot}
@@ -487,7 +487,7 @@ export default function PositionTracker() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4" /> Greeks Decay Over Time (T to T+7)</CardTitle>
-              <p className="text-[10px] text-muted-foreground">How your portfolio P&L and Greeks change as time passes (theta decay effect)</p>
+              <p className="text-xs text-muted-foreground">How your portfolio P&L and Greeks change as time passes (theta decay effect)</p>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
@@ -539,8 +539,8 @@ export default function PositionTracker() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm flex items-center gap-2">
                     {sym}
-                    <Badge variant="outline" className="text-[9px]">{symPositions.length} legs</Badge>
-                    <Badge variant="outline" className="text-[9px]">Lot: {getLotSize(sym)}</Badge>
+                    <Badge variant="outline" className="text-[11px]">{symPositions.length} legs</Badge>
+                    <Badge variant="outline" className="text-[11px]">Lot: {getLotSize(sym)}</Badge>
                   </CardTitle>
                   <span className={`text-sm font-bold font-mono ${symPnl >= 0 ? "text-bullish" : "text-bearish"}`}>
                     {symPnl >= 0 ? "+" : ""}₹{symPnl.toLocaleString("en-IN")}
@@ -550,7 +550,7 @@ export default function PositionTracker() {
               <CardContent className="p-0 overflow-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="text-[10px]">
+                    <TableRow className="text-xs">
                       <TableHead>Action</TableHead>
                       <TableHead>Type</TableHead>
                       <TableHead className="text-right">Strike</TableHead>
@@ -569,8 +569,8 @@ export default function PositionTracker() {
                   <TableBody>
                     {symPositions.map(p => (
                       <TableRow key={p.id} className="text-[11px] font-mono hover:bg-accent/30">
-                        <TableCell><Badge variant={p.action === "BUY" ? "default" : "destructive"} className="text-[9px] h-4 px-1.5">{p.action}</Badge></TableCell>
-                        <TableCell><Badge variant="outline" className="text-[9px] h-4 px-1.5">{p.type}</Badge></TableCell>
+                        <TableCell><Badge variant={p.action === "BUY" ? "default" : "destructive"} className="text-[11px] h-4 px-1.5">{p.action}</Badge></TableCell>
+                        <TableCell><Badge variant="outline" className="text-[11px] h-4 px-1.5">{p.type}</Badge></TableCell>
                         <TableCell className="text-right font-bold">{p.strike.toLocaleString("en-IN")}</TableCell>
                         <TableCell className="text-right">
                           <EditableCell value={p.lots} onSave={v => handleUpdateLots(p.id, Math.max(1, Math.round(v)))} />
@@ -598,7 +598,7 @@ export default function PositionTracker() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-5 px-1.5 text-[9px] text-primary hover:text-primary"
+                              className="h-5 px-1.5 text-[11px] text-primary hover:text-primary"
                               onClick={() => handleClose(p.id)}
                               title="Close at CMP"
                             >
@@ -626,13 +626,13 @@ export default function PositionTracker() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm flex items-center gap-2">
                 Closed Positions
-                <Badge variant="outline" className="text-[9px]">{closedPositions.length}</Badge>
+                <Badge variant="outline" className="text-[11px]">{closedPositions.length}</Badge>
                 <span className={`text-xs font-mono font-bold ${closedPositions.reduce((s, p) => s + p.realizedPnl, 0) >= 0 ? "text-bullish" : "text-bearish"}`}>
                   ₹{closedPositions.reduce((s, p) => s + p.realizedPnl, 0).toLocaleString("en-IN")} realized
                 </span>
               </CardTitle>
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="h-5 text-[9px] text-destructive" onClick={(e) => { e.stopPropagation(); clearClosedPositions(); setClosedPositions([]); }}>
+                <Button variant="ghost" size="sm" className="h-5 text-[11px] text-destructive" onClick={(e) => { e.stopPropagation(); clearClosedPositions(); setClosedPositions([]); }}>
                   Clear
                 </Button>
                 {showClosed ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -643,7 +643,7 @@ export default function PositionTracker() {
             <CardContent className="p-0 overflow-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="text-[10px]">
+                  <TableRow className="text-xs">
                     <TableHead>Position</TableHead>
                     <TableHead className="text-right">Entry</TableHead>
                     <TableHead className="text-right">Exit</TableHead>
@@ -658,8 +658,8 @@ export default function PositionTracker() {
                     <TableRow key={p.id} className="text-[11px] font-mono opacity-70">
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Badge variant={p.action === "BUY" ? "default" : "destructive"} className="text-[8px] h-3.5 px-1">{p.action}</Badge>
-                          <span className="font-sans text-[10px]">{p.symbol} {p.strike} {p.type}</span>
+                          <Badge variant={p.action === "BUY" ? "default" : "destructive"} className="text-xs h-3.5 px-1">{p.action}</Badge>
+                          <span className="font-sans text-xs">{p.symbol} {p.strike} {p.type}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">₹{p.entryPrice.toFixed(2)}</TableCell>

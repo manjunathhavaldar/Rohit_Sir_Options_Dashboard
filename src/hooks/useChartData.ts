@@ -142,8 +142,8 @@ async function fetchHistorical(symbol: string, range: string): Promise<OHLCVCand
   const fromDate = `${from.toISOString().split("T")[0]} 09:15`;
   const toDate = `${now.toISOString().split("T")[0]} 15:30`;
   
-  // Determine interval: "5" for 1W (5min candles), "60" for 1M, "1" for daily (3M+)
-  let interval = "1"; // daily
+  // Determine interval: "15" for 1W (15min candles), "60" for 1M, "D" for daily (3M+)
+  let interval = "D"; // daily candles for 3M+
   if (range === "1W") interval = "15";
   else if (range === "1M") interval = "60";
 

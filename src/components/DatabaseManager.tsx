@@ -258,7 +258,7 @@ export function DatabaseManager() {
           <Database className="h-5 w-5 text-primary" />
           Market Database
           {stats && stats.instruments > 0 && (
-            <Badge variant="outline" className="text-[9px] h-5 px-1.5 border-bullish/30 text-bullish gap-1">
+            <Badge variant="outline" className="text-[11px] h-5 px-1.5 border-bullish/30 text-bullish gap-1">
               <Radio className="h-2 w-2" />
               {stats.instruments.toLocaleString()} instruments
             </Badge>
@@ -314,10 +314,10 @@ export function DatabaseManager() {
                 {progress.phase === "done" && "Complete!"}
                 {progress.phase === "error" && "Error"}
               </span>
-              <span className="text-[10px] text-muted-foreground font-mono">{Math.round(overallProgress)}%</span>
+              <span className="text-xs text-muted-foreground font-mono">{Math.round(overallProgress)}%</span>
             </div>
             <Progress value={overallProgress} className={`h-1.5 ${progress.phase === "error" ? "[&>div]:bg-destructive" : progress.phase === "done" ? "[&>div]:bg-bullish" : ""}`} />
-            <p className="text-[10px] text-muted-foreground">{progress.message}</p>
+            <p className="text-xs text-muted-foreground">{progress.message}</p>
           </div>
         )}
 
@@ -357,7 +357,7 @@ export function DatabaseManager() {
 
         {/* What gets downloaded */}
         <div className="space-y-1.5">
-          <p className="text-[10px] font-medium text-muted-foreground">What gets stored:</p>
+          <p className="text-xs font-medium text-muted-foreground">What gets stored:</p>
           <div className="grid grid-cols-2 gap-1.5">
             {[
               { icon: <Layers className="h-2.5 w-2.5" />, text: "NSE F&O instrument master" },
@@ -365,7 +365,7 @@ export function DatabaseManager() {
               { icon: <CandlestickChart className="h-2.5 w-2.5" />, text: "2-day index candles (5m)" },
               { icon: <BarChart3 className="h-2.5 w-2.5" />, text: "Top 10 F&O stock candles" },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <div key={i} className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 {item.icon}
                 <span>{item.text}</span>
               </div>
@@ -382,10 +382,10 @@ function StatCard({ icon, label, value, sub }: { icon: React.ReactNode; label: s
     <div className="p-2.5 rounded-lg bg-card border">
       <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
         {icon}
-        <span className="text-[10px] font-medium">{label}</span>
+        <span className="text-xs font-medium">{label}</span>
       </div>
       <p className="text-sm font-bold font-mono">{value}</p>
-      <p className="text-[9px] text-muted-foreground mt-0.5 flex items-center gap-1">
+      <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
         <Clock className="h-2.5 w-2.5" />
         {sub}
       </p>

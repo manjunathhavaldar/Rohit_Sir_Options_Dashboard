@@ -94,7 +94,7 @@ export function FuturesVIX() {
           <CardHeader className="pb-3 pt-4 px-5 bg-gradient-to-r from-primary/5 to-transparent">
             <CardTitle className="text-base flex items-center gap-2">
               <Globe className="h-5 w-5 text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" /> Index Performance
-              {isLive && <Badge variant="outline" className="text-[10px] h-5 px-2 border-bullish/30 text-bullish ml-auto gap-1"><Radio className="h-3 w-3 animate-pulse" />LIVE</Badge>}
+              {isLive && <Badge variant="outline" className="text-xs h-5 px-2 border-bullish/30 text-bullish ml-auto gap-1"><Radio className="h-3 w-3 animate-pulse" />LIVE</Badge>}
             </CardTitle>
           </CardHeader>
           <CardContent className="px-5 pb-4">
@@ -152,7 +152,7 @@ export function FuturesVIX() {
               {vix.value.toFixed(2)}
             </span>}
             {hasVixChartData && (
-              <span className="text-[10px] text-primary/50 flex items-center gap-1 font-mono">
+              <span className="text-xs text-primary/50 flex items-center gap-1 font-mono">
                 <Database className="h-3 w-3" />DB
               </span>
             )}
@@ -195,8 +195,8 @@ export function FuturesVIX() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-1.5">
                 <Activity className="h-6 w-6 opacity-20" />
-                <p className="text-[10px]">VIX chart data unavailable</p>
-                <p className="text-[8px] opacity-50">Download database or wait for market hours</p>
+                <p className="text-xs">VIX chart data unavailable</p>
+                <p className="text-xs opacity-50">Download database or wait for market hours</p>
               </div>
             )}
           </div>

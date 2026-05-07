@@ -1,10 +1,10 @@
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:6366f1&height=180&section=header&text=Option%20Hub&fontSize=52&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=India's%20Best%20Open-Source%20F%26O%20Terminal&descSize=16&descAlignY=55&descColor=8b5cf6" width="100%" />
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:071018,50:0f8c95,100:101827&height=180&section=header&text=Mr.%20Chartist%20Terminal&fontSize=46&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=India's%20Best%20Open-Source%20F%26O%20Analytics%20Terminal&descSize=16&descAlignY=55&descColor=22d3ee" width="100%" />
 
 <div align="center">
 
 **India's most comprehensive open-source Options & Futures analytics terminal.**
 
-Built for NSE F&O traders who want institutional-grade tools -- free, open-source, and running in your browser.
+Built for NSE F&O traders who want a polished, institutional-style terminal -- free, open-source, and running in your browser.
 
 Built by [**Mr. Chartist**](https://github.com/MrChartist) | Part of the [Mr. Chartist Ecosystem](https://mrchartist.com)
 
@@ -21,11 +21,65 @@ Built by [**Mr. Chartist**](https://github.com/MrChartist) | Part of the [Mr. Ch
 
 ---
 
-> **⚠️ BASE PROJECT — Work in Progress**
+> **🚀 v1.0 — Actively Maintained**
 >
-> This is a **base/starter project** — it's functional and covers a LOT of ground, but some features may not be fully connected or polished yet. Think of it as a solid foundation you can build on top of. The creator ([MrChartist](https://github.com/MrChartist)) is actively working on completing this within the next **10–30 days**. See the [Roadmap](#-current-status--roadmap) for details.
+> Core features are stable and production-ready. Some advanced broker integrations (Zerodha, Angel One, Upstox) have UI support but are pending backend relay implementation — contributions welcome! See the [Roadmap](#-current-status--roadmap) for what's next.
 >
-> **You're free to fork, copy, modify, and improve this project!** It's MIT licensed. If something doesn't make sense, throw the code at Claude/ChatGPT/Gemini and vibe-code your way through it. 🚀
+> **Fork it, build on it, make it yours!** MIT licensed. If something doesn't make sense, use Claude/ChatGPT/Gemini to inspect the code, understand the flow, and iterate safely.
+
+---
+
+## 📸 Live Screenshots
+
+<details open>
+<summary><strong>🌙 Dark Mode — Market Dashboard</strong></summary>
+
+![Dashboard Dark Mode](docs/screenshots/dashboard-dark.png)
+
+</details>
+
+<details>
+<summary><strong>☀️ Light Mode — Dashboard</strong></summary>
+
+![Dashboard Light Mode](docs/screenshots/dashboard-light.png)
+
+</details>
+
+<details>
+<summary><strong>🌙 Dark Mode — Option Chain</strong></summary>
+
+![Option Chain Dark](docs/screenshots/option-chain-dark.png)
+
+</details>
+
+<details>
+<summary><strong>☀️ Light Mode — OI Analysis</strong></summary>
+
+![OI Analysis Light](docs/screenshots/oi-analysis-light.png)
+
+</details>
+
+<details>
+<summary><strong>☀️ Light Mode — Strategy Builder</strong></summary>
+
+![Strategy Builder Light](docs/screenshots/strategy-builder-light.png)
+
+</details>
+
+<details>
+<summary><strong>🌙 Dark Mode — Broker Settings</strong></summary>
+
+![Broker Settings Dark](docs/screenshots/broker-settings-dark.png)
+
+</details>
+
+---
+
+## Preview
+
+![Mr. Chartist dashboard with polished sidebar](docs/screenshots/dashboard-light.png)
+
+![Mr. Chartist compact navigation rail](docs/screenshots/dashboard-collapsed-navbar.png)
 
 ---
 
@@ -53,13 +107,14 @@ This is a **free, browser-based Options & Futures analytics terminal** for the I
 |---------|-------------|--------|
 | **📊 Live Dashboard** | Real-time NIFTY, BANKNIFTY prices, VIX, sector heatmap, market sentiment score | ✅ Working |
 | **⛓️ Option Chain** | Full strike-wise data — LTP, OI, OI Change, Volume, IV for every CE/PE strike | ✅ Working |
-| **📈 OI Analysis** | Visual charts showing Call/Put writers positioning (Max Pain, Delta OI, PCR) | ✅ Working |
+| **📈 OI Analysis** | ATM zone, OI heatmap, support/resistance, IV/PCR modules, and 10 analysis tabs | ✅ Working |
 | **🧮 Strategy Builder** | Build Bull Call Spread, Iron Condor, Straddle — see payoff chart before you trade | ✅ Working |
 | **💼 Position Tracker** | Track your open positions with real-time P&L | ✅ Working |
 | **⭐ Watchlist** | Save your favorite stocks for quick access | ✅ Working |
 | **🔑 Broker API Keys** | Connect your Dhan/Zerodha/Angel One account for live data (BYOK) | ✅ Working (Dhan fully connected) |
 | **📡 WebSocket Live Feed** | Real-time price ticks via Dhan WebSocket binary protocol | ✅ Working |
 | **🗄️ Local Database** | IndexedDB-based persistence for price snapshots and candle history | ✅ Working |
+| **📥 Chart Downloader** | Batch download OHLCV candles via Yahoo Finance (free, no API key) | ✅ Working |
 
 ### Dashboard Sections
 
@@ -182,10 +237,10 @@ The Broker Settings page supports entering API keys for 7 Indian brokers:
 
 ## 📡 Data Sources
 
-The terminal uses **3 data sources** with automatic failover:
+The terminal uses **4 data sources** with automatic failover:
 
 ```
-Priority: Dhan API (1st) → NSE India (2nd) → TradingView (3rd)
+Priority: Dhan API (1st) → NSE India (2nd) → TradingView (3rd) → Yahoo Finance (Charts)
 ```
 
 | Source | What It Provides | Auth Needed? | Accuracy |
@@ -193,6 +248,7 @@ Priority: Dhan API (1st) → NSE India (2nd) → TradingView (3rd)
 | **Dhan API** ⭐ | Option Chain, Greeks, Expiry List, Live WebSocket Ticks | Yes (free API key) | Real-time |
 | **NSE India** | Indices, Sectors, Advance/Decline, Option Chain (fallback) | No | 3-5 sec delay |
 | **TradingView** | 100+ F&O stock prices, Volume, Sector data | No | 15-30 sec delay |
+| **Yahoo Finance** 🆕 | Historical OHLCV charts for all NSE stocks & indices | No | EOD / 15min delay |
 
 ### How the Data Flows
 
@@ -256,17 +312,20 @@ Full option chain for any F&O symbol — NIFTY, BANKNIFTY, FINNIFTY, MIDCPNIFTY,
 
 ### 3. OI Analysis (`/oi-analysis`)
 
-Deep analysis of Open Interest data with 7 chart tabs:
+Deep analysis of Open Interest data with summary cards, ATM zone analysis, OI heatmap, support/resistance, multi-expiry context, IV/PCR modules, and 10 analysis tabs:
 
 | Tab | What It Shows |
 |-----|--------------|
-| **OI Distribution** | Where Call/Put writers are concentrated |
 | **Delta OI** | Directional exposure at each strike |
 | **Strike PCR** | Put-Call ratio per strike |
-| **ATM Zone** | OI buildup around the current price |
+| **OI Correlation** | OI, OI change, and volume relationships |
+| **OI Distribution** | Where Call/Put writers are concentrated |
+| **OI Change** | Strike-wise change in open interest |
 | **Multi-Expiry** | Weekly vs Monthly OI comparison |
 | **IV Smile** | Implied Volatility skew across strikes |
-| **PCR Dashboard** | Live PCR gauge + OI breakdown |
+| **PCR Trend** | Live PCR gauge + OI breakdown |
+| **OI Interpretation** | Buildup, unwinding, short covering, and active strikes |
+| **Top Strikes** | Highest call and put OI strikes |
 
 ### 4. Strategy Builder (`/strategy-builder`)
 
@@ -337,7 +396,7 @@ india-s-best-option-hub/
 │   ├── pages/                # Each page = one route
 │   │   ├── Index.tsx         # Dashboard (/) — 10+ widget sections
 │   │   ├── OptionChain.tsx   # Option Chain (/option-chain)
-│   │   ├── OIAnalysis.tsx    # OI Analysis (/oi-analysis) — 7 chart tabs
+│   │   ├── OIAnalysis.tsx    # OI Analysis (/oi-analysis) — ATM zone + 10 analysis tabs
 │   │   ├── Watchlist.tsx     # Watchlist (/watchlist)
 │   │   ├── StrategyBuilder.tsx # Strategy Builder (/strategy-builder)
 │   │   ├── PositionTracker.tsx # Position Tracker (/position-tracker)
@@ -475,7 +534,7 @@ This means you're hitting Dhan's rate limit. The proxy caches responses to minim
 
 - Full Dashboard with 10+ live widgets
 - Option Chain (Dhan primary, NSE fallback)
-- OI Analysis with 7 chart types
+- OI Analysis with ATM zone, heatmap, support/resistance, and 10 analysis tabs
 - Strategy Builder with payoff diagrams
 - Position Tracker
 - Watchlist

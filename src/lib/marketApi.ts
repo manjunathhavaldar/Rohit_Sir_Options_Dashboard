@@ -65,11 +65,14 @@ interface DhanOptionChainData {
 
 interface DhanOptionLeg {
   ltp?: number;
+  last_price?: number;
   close?: number;
   volume?: number;
   oi?: number;
   oi_chg?: number;
+  previous_oi?: number;
   iv?: number;
+  implied_volatility?: number;
   delta?: number;
   gamma?: number;
   theta?: number;
@@ -78,6 +81,14 @@ interface DhanOptionLeg {
   ask_price?: number;
   best_bid_price?: number;
   best_ask_price?: number;
+  top_bid_price?: number;
+  top_ask_price?: number;
+  greeks?: {
+    delta?: number;
+    gamma?: number;
+    theta?: number;
+    vega?: number;
+  };
 }
 
 export function parseDhanOptionChain(raw: DhanOptionChainData): {
@@ -87,8 +98,6 @@ export function parseDhanOptionChain(raw: DhanOptionChainData): {
   totalPEOI: number;
 } {
   const oc = raw?.data?.oc || {};
-  const ivOc = raw?.data?.iv_oc || {};
-  const gkOc = raw?.data?.gk_oc || {};
   const spotPrice = raw?.data?.last_price || 0;
 
   let totalCEOI = 0;
@@ -98,41 +107,43 @@ export function parseDhanOptionChain(raw: DhanOptionChainData): {
     .map(strikeStr => {
       const strike = parseFloat(strikeStr);
       const legData = oc[strikeStr];
-      const ivData = ivOc[strikeStr] || {};
-      const greekData = gkOc[strikeStr] || {};
 
       const ceOI = legData.ce?.oi || 0;
       const peOI = legData.pe?.oi || 0;
       totalCEOI += ceOI;
       totalPEOI += peOI;
 
+      // Support both Dhan API v1 (flat fields) and v2 (nested greeks object)
+      const ceGreeks = legData.ce?.greeks || {};
+      const peGreeks = legData.pe?.greeks || {};
+
       return {
         strikePrice: strike,
         ce: {
-          ltp: legData.ce?.ltp || legData.ce?.close || 0,
+          ltp: legData.ce?.last_price || legData.ce?.ltp || 0,
           oi: ceOI,
-          oiChange: legData.ce?.oi_chg || 0,
+          oiChange: legData.ce?.oi_chg || (ceOI - (legData.ce?.previous_oi || ceOI)),
           volume: legData.ce?.volume || 0,
-          iv: legData.ce?.iv || ivData.ce_iv || 0,
-          delta: greekData.ce_delta || legData.ce?.delta || 0,
-          gamma: greekData.ce_gamma || legData.ce?.gamma || 0,
-          theta: greekData.ce_theta || legData.ce?.theta || 0,
-          vega: greekData.ce_vega || legData.ce?.vega || 0,
-          bidPrice: legData.ce?.best_bid_price || legData.ce?.bid_price || 0,
-          askPrice: legData.ce?.best_ask_price || legData.ce?.ask_price || 0,
+          iv: legData.ce?.implied_volatility || legData.ce?.iv || 0,
+          delta: ceGreeks.delta || legData.ce?.delta || 0,
+          gamma: ceGreeks.gamma || legData.ce?.gamma || 0,
+          theta: ceGreeks.theta || legData.ce?.theta || 0,
+          vega: ceGreeks.vega || legData.ce?.vega || 0,
+          bidPrice: legData.ce?.top_bid_price || legData.ce?.best_bid_price || legData.ce?.bid_price || 0,
+          askPrice: legData.ce?.top_ask_price || legData.ce?.best_ask_price || legData.ce?.ask_price || 0,
         },
         pe: {
-          ltp: legData.pe?.ltp || legData.pe?.close || 0,
+          ltp: legData.pe?.last_price || legData.pe?.ltp || 0,
           oi: peOI,
-          oiChange: legData.pe?.oi_chg || 0,
+          oiChange: legData.pe?.oi_chg || (peOI - (legData.pe?.previous_oi || peOI)),
           volume: legData.pe?.volume || 0,
-          iv: legData.pe?.iv || ivData.pe_iv || 0,
-          delta: greekData.pe_delta || legData.pe?.delta || 0,
-          gamma: greekData.pe_gamma || legData.pe?.gamma || 0,
-          theta: greekData.pe_theta || legData.pe?.theta || 0,
-          vega: greekData.pe_vega || legData.pe?.vega || 0,
-          bidPrice: legData.pe?.best_bid_price || legData.pe?.bid_price || 0,
-          askPrice: legData.pe?.best_ask_price || legData.pe?.ask_price || 0,
+          iv: legData.pe?.implied_volatility || legData.pe?.iv || 0,
+          delta: peGreeks.delta || legData.pe?.delta || 0,
+          gamma: peGreeks.gamma || legData.pe?.gamma || 0,
+          theta: peGreeks.theta || legData.pe?.theta || 0,
+          vega: peGreeks.vega || legData.pe?.vega || 0,
+          bidPrice: legData.pe?.top_bid_price || legData.pe?.best_bid_price || legData.pe?.bid_price || 0,
+          askPrice: legData.pe?.top_ask_price || legData.pe?.best_ask_price || legData.pe?.ask_price || 0,
         },
       };
     })
@@ -544,4 +555,25 @@ export async function fetchHistoricalCandles(
   if (toDate) params.toDate = toDate;
 
   return fetchDhanProxy("historical", params);
+}
+
+// ── Yahoo Finance Chart Data (free, no auth) ──
+
+export async function fetchYahooChart(
+  symbol: string,
+  interval: string = "D",
+  fromDate?: string,
+  toDate?: string,
+): Promise<HistoricalCandleResponse> {
+  const params = new URLSearchParams({ symbol, interval });
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
+
+  const url = `${PROXY_BASE}/api/yahoo-chart?${params.toString()}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Yahoo chart error ${res.status}: ${errText}`);
+  }
+  return res.json();
 }

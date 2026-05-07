@@ -146,7 +146,7 @@ export function DataSourcesBar() {
       {sources.map((src) => (
         <Tooltip key={src.name}>
           <TooltipTrigger asChild>
-            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium cursor-default transition-all duration-200 shrink-0 ${
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium cursor-default transition-all duration-200 shrink-0 ${
               src.primary 
                 ? src.status === "live"
                   ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
@@ -165,7 +165,7 @@ export function DataSourcesBar() {
               <div className="flex items-center gap-1.5">
                 <div className={`h-2 w-2 rounded-full shrink-0 ${statusColor(src.status)}`} />
                 <span className="font-semibold">{src.name}</span>
-                <Badge variant="outline" className={`text-[10px] h-5 px-1.5 ${statusTextColor(src.status)}`}>
+                <Badge variant="outline" className={`text-xs h-5 px-1.5 ${statusTextColor(src.status)}`}>
                   {statusLabel(src.status)}
                 </Badge>
               </div>

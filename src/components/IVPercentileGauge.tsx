@@ -64,13 +64,13 @@ export function IVPercentileGauge({ chain, spotPrice, symbol }: Props) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Gauge className="h-4 w-4 text-primary" /> IV Percentile
-              <Badge variant="outline" className="text-[8px] h-4 ml-auto">Cross-Strike</Badge>
+              <Badge variant="outline" className="text-xs h-4 ml-auto">Cross-Strike</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Gauge visual */}
             <div className="relative">
-              <div className="flex justify-between text-[9px] text-muted-foreground font-mono mb-1">
+              <div className="flex justify-between text-[11px] text-muted-foreground font-mono mb-1">
                 <span>0%</span>
                 <span>25%</span>
                 <span>50%</span>
@@ -89,31 +89,31 @@ export function IVPercentileGauge({ chain, spotPrice, symbol }: Props) {
               <div className={`text-center mt-1 px-3 py-1 rounded-md ${ivZone.bg}`}>
                 <span className={`text-xs font-semibold ${ivZone.color}`}>{ivZone.label}</span>
               </div>
-              <p className="text-[10px] text-muted-foreground text-center mt-2">{ivZone.desc}</p>
+              <p className="text-xs text-muted-foreground text-center mt-2">{ivZone.desc}</p>
             </div>
 
             {/* IV Stats */}
             <div className="grid grid-cols-2 gap-2">
               <div className="p-2 rounded-md bg-accent/30 text-center">
-                <p className="text-[9px] text-muted-foreground">ATM IV</p>
+                <p className="text-[11px] text-muted-foreground">ATM IV</p>
                 <p className="text-lg font-bold font-mono">{ivMetrics.atmIV.toFixed(1)}%</p>
               </div>
               <div className="p-2 rounded-md bg-accent/30 text-center">
-                <p className="text-[9px] text-muted-foreground">IV Rank</p>
+                <p className="text-[11px] text-muted-foreground">IV Rank</p>
                 <p className="text-lg font-bold font-mono">{ivMetrics.rank}%</p>
               </div>
               <div className="p-2 rounded-md bg-accent/30 text-center">
-                <p className="text-[9px] text-muted-foreground">Min IV</p>
+                <p className="text-[11px] text-muted-foreground">Min IV</p>
                 <p className="text-sm font-bold font-mono text-bullish">{ivMetrics.min}%</p>
               </div>
               <div className="p-2 rounded-md bg-accent/30 text-center">
-                <p className="text-[9px] text-muted-foreground">Max IV</p>
+                <p className="text-[11px] text-muted-foreground">Max IV</p>
                 <p className="text-sm font-bold font-mono text-bearish">{ivMetrics.max}%</p>
               </div>
             </div>
 
             <div className="p-2 rounded-md bg-accent/30 text-center">
-              <p className="text-[9px] text-muted-foreground">Mean IV (All Strikes)</p>
+              <p className="text-[11px] text-muted-foreground">Mean IV (All Strikes)</p>
               <p className="text-sm font-bold font-mono">{ivMetrics.mean}%</p>
               <Progress value={ivMetrics.rank} className="mt-1 h-1.5" />
             </div>
@@ -125,7 +125,7 @@ export function IVPercentileGauge({ chain, spotPrice, symbol }: Props) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Activity className="h-4 w-4 text-primary" /> {symbol} IV Smile / Skew
-              <Badge variant="outline" className="text-[8px] h-4 ml-auto text-bullish border-bullish/30">LIVE</Badge>
+              <Badge variant="outline" className="text-xs h-4 ml-auto text-bullish border-bullish/30">LIVE</Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -181,14 +181,14 @@ export function IVPercentileGauge({ chain, spotPrice, symbol }: Props) {
               style={{ left: `${Math.min(Math.max((currentPCR / 2) * 100, 2), 98)}%`, transform: "translateX(-50%)" }}
             />
           </div>
-          <div className="flex justify-between text-[9px] text-muted-foreground font-mono mt-1">
+          <div className="flex justify-between text-[11px] text-muted-foreground font-mono mt-1">
             <span>0.0 (Strong Bearish)</span>
             <span>0.7</span>
             <span>1.0 (Neutral)</span>
             <span>1.3</span>
             <span>2.0 (Strong Bullish)</span>
           </div>
-          <p className="text-[10px] text-muted-foreground text-center mt-3">
+          <p className="text-xs text-muted-foreground text-center mt-3">
             {currentPCR > 1.2 ? "Put OI dominates — writers expect limited downside. Bullish signal." :
              currentPCR < 0.7 ? "Call OI heavy — writers expect capped upside. Bearish signal." :
              "PCR in neutral zone. No strong directional conviction from OI flows."}

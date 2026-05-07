@@ -183,18 +183,24 @@ export function useLiveOptionChain(symbol: string, expiry?: string) {
       if (shouldTryProxy()) {
         try {
           const result = await fetchLiveOptionChain(symbol, expiry);
-          if (result && result.chain.length > 0) {
+          if (result) {
             markProxyOnline();
             const stepSize = result.chain.length > 1 ? Math.abs(result.chain[1].strikePrice - result.chain[0].strikePrice) : 50;
             const isAfterHours = !!(result as any).afterHours;
-            return {
-              chain: result.chain, spotPrice: result.spotPrice, expiries: result.expiries,
-              lotSize: getLotSize(symbol), stepSize, maxPain: getMaxPain(result.chain),
-              totalCEOI: result.totalCEOI, totalPEOI: result.totalPEOI,
-              isLive: !isAfterHours, afterHours: isAfterHours,
-              source: result.source || "live",
-              cachedAt: (result as any).cachedAt || null,
-            };
+            const hasChainData = result.chain.length > 0;
+            
+            // Return data even if chain is empty during after-hours
+            // so the UI can show "Market Closed" instead of a blank page
+            if (hasChainData || isAfterHours) {
+              return {
+                chain: result.chain, spotPrice: result.spotPrice, expiries: result.expiries,
+                lotSize: getLotSize(symbol), stepSize, maxPain: hasChainData ? getMaxPain(result.chain) : 0,
+                totalCEOI: result.totalCEOI, totalPEOI: result.totalPEOI,
+                isLive: hasChainData && !isAfterHours, afterHours: isAfterHours,
+                source: result.source || "live",
+                cachedAt: (result as any).cachedAt || null,
+              };
+            }
           }
         } catch (e) { markProxyOffline(); console.warn("Option chain fetch failed:", e); }
       }

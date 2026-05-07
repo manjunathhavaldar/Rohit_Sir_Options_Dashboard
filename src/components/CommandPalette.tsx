@@ -41,11 +41,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         <CommandEmpty>No results found.</CommandEmpty>
 
         <CommandGroup heading="Pages">
-          <CommandItem onSelect={() => go("/")}><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard <span className="ml-auto text-[10px] text-muted-foreground font-mono">Ctrl+1</span></CommandItem>
-          <CommandItem onSelect={() => go("/option-chain")}><TableProperties className="mr-2 h-4 w-4" /> Option Chain <span className="ml-auto text-[10px] text-muted-foreground font-mono">Ctrl+2</span></CommandItem>
-          <CommandItem onSelect={() => go("/oi-analysis")}><BarChart3 className="mr-2 h-4 w-4" /> OI Analysis <span className="ml-auto text-[10px] text-muted-foreground font-mono">Ctrl+3</span></CommandItem>
-          <CommandItem onSelect={() => go("/greeks")}><Calculator className="mr-2 h-4 w-4" /> Greeks Calculator <span className="ml-auto text-[10px] text-muted-foreground font-mono">Ctrl+4</span></CommandItem>
-          <CommandItem onSelect={() => go("/strategy")}><Layers className="mr-2 h-4 w-4" /> Strategy Builder <span className="ml-auto text-[10px] text-muted-foreground font-mono">Ctrl+5</span></CommandItem>
+          <CommandItem onSelect={() => go("/")}><LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard <span className="ml-auto text-xs text-muted-foreground font-mono">Ctrl+1</span></CommandItem>
+          <CommandItem onSelect={() => go("/option-chain")}><TableProperties className="mr-2 h-4 w-4" /> Option Chain <span className="ml-auto text-xs text-muted-foreground font-mono">Ctrl+2</span></CommandItem>
+          <CommandItem onSelect={() => go("/oi-analysis")}><BarChart3 className="mr-2 h-4 w-4" /> OI Analysis <span className="ml-auto text-xs text-muted-foreground font-mono">Ctrl+3</span></CommandItem>
+          <CommandItem onSelect={() => go("/greeks")}><Calculator className="mr-2 h-4 w-4" /> Greeks Calculator <span className="ml-auto text-xs text-muted-foreground font-mono">Ctrl+4</span></CommandItem>
+          <CommandItem onSelect={() => go("/strategy")}><Layers className="mr-2 h-4 w-4" /> Strategy Builder <span className="ml-auto text-xs text-muted-foreground font-mono">Ctrl+5</span></CommandItem>
         </CommandGroup>
 
         <CommandSeparator />

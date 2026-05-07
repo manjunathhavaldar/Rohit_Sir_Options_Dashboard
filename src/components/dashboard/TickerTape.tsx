@@ -60,7 +60,7 @@ export function TickerTape({ indices, giftNifty }: Props) {
       </div>
       {giftNifty && giftNifty.lastPrice > 0 && (
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/15 shrink-0">
-          <Plane className="h-3 w-3 text-primary" />
+          <Plane className="h-3.5 w-3.5 text-primary" />
           <span className="text-2xs font-medium text-primary uppercase tracking-wider">GIFT</span>
           <span className="text-sm font-bold font-mono tabular-nums">{giftNifty.lastPrice.toLocaleString("en-IN")}</span>
           <span className={`text-2xs font-mono tabular-nums font-medium ${giftNifty.change >= 0 ? "text-bullish" : "text-bearish"}`}>

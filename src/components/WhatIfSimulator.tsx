@@ -123,13 +123,13 @@ export function WhatIfSimulator({ positions }: Props) {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
           <Sliders className="h-4 w-4 text-primary" /> What-If Scenario Simulator
-          <Badge variant="outline" className="text-[9px] font-mono">Base: {baseSpot.toLocaleString("en-IN")} | {baseDTE} DTE</Badge>
+          <Badge variant="outline" className="text-[11px] font-mono">Base: {baseSpot.toLocaleString("en-IN")} | {baseDTE} DTE</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Quick Scenario Presets */}
         <div className="flex flex-wrap gap-1.5">
-          <span className="text-[9px] text-muted-foreground self-center mr-1">Presets:</span>
+          <span className="text-[11px] text-muted-foreground self-center mr-1">Presets:</span>
           {[
             { label: "📊 Budget Day", spot: 0, iv: 5, days: 0 },
             { label: "🗳️ Election", spot: 3, iv: 8, days: 0 },
@@ -141,7 +141,7 @@ export function WhatIfSimulator({ positions }: Props) {
           ].map(preset => (
             <button
               key={preset.label}
-              className="text-[9px] px-2 py-1 rounded-md bg-accent/50 hover:bg-accent border border-transparent hover:border-border/50 transition-all duration-150 font-medium"
+              className="text-[11px] px-2 py-1 rounded-md bg-accent/50 hover:bg-accent border border-transparent hover:border-border/50 transition-all duration-150 font-medium"
               onClick={() => { setSpotChange(preset.spot); setIvChange(preset.iv); setDaysForward(preset.days); }}
             >
               {preset.label}
@@ -153,7 +153,7 @@ export function WhatIfSimulator({ positions }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-3 rounded-lg bg-accent/30">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] flex items-center gap-1">
+              <Label className="text-xs flex items-center gap-1">
                 <Activity className="h-3 w-3" /> Spot Change
               </Label>
               <Badge variant="outline" className={`text-xs font-mono ${spotChange > 0 ? "text-bullish" : spotChange < 0 ? "text-bearish" : ""}`}>
@@ -167,14 +167,14 @@ export function WhatIfSimulator({ positions }: Props) {
               max={5}
               step={0.25}
             />
-            <p className="text-[9px] text-muted-foreground font-mono text-center">
+            <p className="text-[11px] text-muted-foreground font-mono text-center">
               {baseSpot.toLocaleString("en-IN")} → {(baseSpot * (1 + spotChange / 100)).toLocaleString("en-IN", { maximumFractionDigits: 0 })}
             </p>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] flex items-center gap-1">
+              <Label className="text-xs flex items-center gap-1">
                 <Percent className="h-3 w-3" /> IV Change
               </Label>
               <Badge variant="outline" className={`text-xs font-mono ${ivChange > 0 ? "text-bearish" : ivChange < 0 ? "text-bullish" : ""}`}>
@@ -192,7 +192,7 @@ export function WhatIfSimulator({ positions }: Props) {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[10px] flex items-center gap-1">
+              <Label className="text-xs flex items-center gap-1">
                 <Clock className="h-3 w-3" /> Days Forward
               </Label>
               <Badge variant="outline" className="text-xs font-mono">
@@ -206,7 +206,7 @@ export function WhatIfSimulator({ positions }: Props) {
               max={Math.max(baseDTE, 1)}
               step={1}
             />
-            <p className="text-[9px] text-muted-foreground font-mono text-center">
+            <p className="text-[11px] text-muted-foreground font-mono text-center">
               {Math.max(0, baseDTE - daysForward)} DTE remaining
             </p>
           </div>
@@ -215,19 +215,19 @@ export function WhatIfSimulator({ positions }: Props) {
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3">
           <div className={`p-3 rounded-md text-center ${totalCurrentPnl >= 0 ? "bg-bullish/5" : "bg-bearish/5"}`}>
-            <p className="text-[9px] text-muted-foreground">Current P&L</p>
+            <p className="text-[11px] text-muted-foreground">Current P&L</p>
             <p className={`text-lg font-bold font-mono ${totalCurrentPnl >= 0 ? "text-bullish" : "text-bearish"}`}>
               ₹{totalCurrentPnl.toLocaleString("en-IN")}
             </p>
           </div>
           <div className={`p-3 rounded-md text-center ${totalSimPnl >= 0 ? "bg-bullish/5" : "bg-bearish/5"}`}>
-            <p className="text-[9px] text-muted-foreground">Simulated P&L</p>
+            <p className="text-[11px] text-muted-foreground">Simulated P&L</p>
             <p className={`text-lg font-bold font-mono ${totalSimPnl >= 0 ? "text-bullish" : "text-bearish"}`}>
               ₹{totalSimPnl.toLocaleString("en-IN")}
             </p>
           </div>
           <div className={`p-3 rounded-md text-center ${totalPnlChange >= 0 ? "bg-bullish/10" : "bg-bearish/10"}`}>
-            <p className="text-[9px] text-muted-foreground">P&L Impact</p>
+            <p className="text-[11px] text-muted-foreground">P&L Impact</p>
             <p className={`text-lg font-bold font-mono ${totalPnlChange >= 0 ? "text-bullish" : "text-bearish"}`}>
               {totalPnlChange >= 0 ? "+" : ""}₹{totalPnlChange.toLocaleString("en-IN")}
             </p>
@@ -237,7 +237,7 @@ export function WhatIfSimulator({ positions }: Props) {
         {/* Per-Position Table */}
         <Table>
           <TableHeader>
-            <TableRow className="text-[10px]">
+            <TableRow className="text-xs">
               <TableHead>Position</TableHead>
               <TableHead className="text-right">Entry</TableHead>
               <TableHead className="text-right">Current</TableHead>
@@ -252,8 +252,8 @@ export function WhatIfSimulator({ positions }: Props) {
               <TableRow key={pos.id} className="text-[11px] font-mono">
                 <TableCell>
                   <div className="flex items-center gap-1">
-                    <Badge variant={pos.action === "BUY" ? "default" : "destructive"} className="text-[8px] h-3.5 px-1">{pos.action}</Badge>
-                    <span className="font-sans text-[10px]">{pos.symbol} {pos.strike} {pos.type}</span>
+                    <Badge variant={pos.action === "BUY" ? "default" : "destructive"} className="text-xs h-3.5 px-1">{pos.action}</Badge>
+                    <span className="font-sans text-xs">{pos.symbol} {pos.strike} {pos.type}</span>
                   </div>
                 </TableCell>
                 <TableCell className="text-right">₹{pos.entryPrice}</TableCell>

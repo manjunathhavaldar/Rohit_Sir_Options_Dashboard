@@ -70,7 +70,7 @@ export function MarketBreadth() {
         <CardHeader className="pb-3 pt-4 px-5 bg-gradient-to-r from-primary/5 to-transparent">
           <CardTitle className="text-base flex items-center gap-2">
             <Gauge className="h-5 w-5 text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]" /> Market Sentiment
-            {isLive && <Badge variant="outline" className="text-[10px] h-5 px-2 border-bullish/30 text-bullish ml-auto">LIVE</Badge>}
+            {isLive && <Badge variant="outline" className="text-xs h-5 px-2 border-bullish/30 text-bullish ml-auto">LIVE</Badge>}
           </CardTitle>
         </CardHeader>
         <CardContent className="px-5 pb-4 space-y-4">

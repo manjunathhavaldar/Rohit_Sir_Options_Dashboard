@@ -180,7 +180,7 @@ function ChartCore({
               <ToggleGroupItem
                 key={r}
                 value={r}
-                className="text-[10px] h-6 px-2.5 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded"
+                className="text-xs h-6 px-2.5 data-[state=on]:bg-background data-[state=on]:shadow-sm rounded"
               >
                 {r}
               </ToggleGroupItem>
@@ -210,7 +210,7 @@ function ChartCore({
               </span>
               <Badge
                 variant="outline"
-                className={`text-[9px] font-mono ${priceChange >= 0 ? "text-bullish border-bullish/30" : "text-bearish border-bearish/30"}`}
+                className={`text-[11px] font-mono ${priceChange >= 0 ? "text-bullish border-bullish/30" : "text-bearish border-bearish/30"}`}
               >
                 {priceChange >= 0 ? "+" : ""}
                 {priceChange.toFixed(2)}%

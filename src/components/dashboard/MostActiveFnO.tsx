@@ -42,7 +42,7 @@ export function MostActiveFnO() {
             ({mostActive.length} stocks)
           </span>
           {isLive && (
-            <Badge variant="outline" className="text-[10px] h-5 px-2 border-bullish/30 text-bullish ml-auto gap-1">
+            <Badge variant="outline" className="text-xs h-5 px-2 border-bullish/30 text-bullish ml-auto gap-1">
               {source === "nse" ? "NSE LIVE" : "TRADINGVIEW"}
             </Badge>
           )}
@@ -109,11 +109,11 @@ export function MostActiveFnO() {
                   </TableCell>
                   <TableCell className="py-2 px-5">
                     {hasOI ? (
-                      <Badge variant="outline" className={`text-[10px] py-1 font-medium bg-background/50 ${interpretationColor[stock.oiInterpretation] || ""}`}>
+                      <Badge variant="outline" className={`text-xs py-1 font-medium bg-background/50 ${interpretationColor[stock.oiInterpretation] || ""}`}>
                         {stock.oiInterpretation}
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className={`text-[10px] py-1 font-medium bg-background/50 ${chgPct >= 0 ? "text-bullish" : "text-bearish"}`}>
+                      <Badge variant="outline" className={`text-xs py-1 font-medium bg-background/50 ${chgPct >= 0 ? "text-bullish" : "text-bearish"}`}>
                         {chgPct > 2 ? "Strong Buy" : chgPct > 0 ? "Bullish" : chgPct > -2 ? "Bearish" : "Strong Sell"}
                       </Badge>
                     )}

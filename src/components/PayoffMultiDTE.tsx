@@ -115,21 +115,21 @@ export function PayoffMultiDTE({ legs, spotPrice, lotSize, stepSize, daysToExpir
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-3 h-0.5 bg-primary rounded" />
-              <Label className="text-[10px]">
+              <Label className="text-xs">
                 <Switch checked={showT0} onCheckedChange={setShowT0} className="mr-1 scale-75" />
                 T+0
               </Label>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-0.5 bg-warning rounded" />
-              <Label className="text-[10px]">
+              <Label className="text-xs">
                 <Switch checked={showT3} onCheckedChange={setShowT3} className="mr-1 scale-75" />
                 T+3
               </Label>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-0.5 bg-bearish rounded" />
-              <Label className="text-[10px]">
+              <Label className="text-xs">
                 <Switch checked={showExpiry} onCheckedChange={setShowExpiry} className="mr-1 scale-75" />
                 Expiry
               </Label>
@@ -142,7 +142,7 @@ export function PayoffMultiDTE({ legs, spotPrice, lotSize, stepSize, daysToExpir
         <div className="flex items-center gap-4 px-2">
           <div className="flex items-center gap-2 shrink-0">
             <Percent className="h-3.5 w-3.5 text-muted-foreground" />
-            <Label className="text-[10px] text-muted-foreground whitespace-nowrap">IV Change:</Label>
+            <Label className="text-xs text-muted-foreground whitespace-nowrap">IV Change:</Label>
           </div>
           <Slider
             value={[ivOverride]}
@@ -187,21 +187,21 @@ export function PayoffMultiDTE({ legs, spotPrice, lotSize, stepSize, daysToExpir
         {/* Key Stats */}
         <div className="grid grid-cols-4 gap-2">
           <div className="p-2 rounded-md bg-accent/30 text-center">
-            <p className="text-[9px] text-muted-foreground">Current P&L (T+0)</p>
+            <p className="text-[11px] text-muted-foreground">Current P&L (T+0)</p>
             <p className={`text-sm font-bold font-mono ${stats.currentPnl >= 0 ? "text-bullish" : "text-bearish"}`}>
               ₹{stats.currentPnl.toLocaleString("en-IN")}
             </p>
           </div>
           <div className="p-2 rounded-md bg-bullish/5 text-center">
-            <p className="text-[9px] text-muted-foreground">Max Profit</p>
+            <p className="text-[11px] text-muted-foreground">Max Profit</p>
             <p className="text-sm font-bold font-mono text-bullish">₹{stats.maxProfit.toLocaleString("en-IN")}</p>
           </div>
           <div className="p-2 rounded-md bg-bearish/5 text-center">
-            <p className="text-[9px] text-muted-foreground">Max Loss</p>
+            <p className="text-[11px] text-muted-foreground">Max Loss</p>
             <p className="text-sm font-bold font-mono text-bearish">₹{stats.maxLoss.toLocaleString("en-IN")}</p>
           </div>
           <div className="p-2 rounded-md bg-accent/30 text-center">
-            <p className="text-[9px] text-muted-foreground">Breakevens</p>
+            <p className="text-[11px] text-muted-foreground">Breakevens</p>
             <p className="text-xs font-mono">{stats.breakevens.length > 0 ? stats.breakevens.map(b => b.toLocaleString("en-IN")).join(", ") : "—"}</p>
           </div>
         </div>

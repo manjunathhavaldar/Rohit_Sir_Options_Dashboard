@@ -132,7 +132,7 @@ export default function Watchlist() {
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             Watchlist
             {isLive && (
-              <Badge variant="outline" className="text-[9px] h-5 px-1.5 border-bullish/30 text-bullish">
+              <Badge variant="outline" className="text-[11px] h-5 px-1.5 border-bullish/30 text-bullish">
                 <Radio className="h-2 w-2 mr-1 animate-pulse" />
                 LIVE
               </Badge>
@@ -176,7 +176,7 @@ export default function Watchlist() {
           ) : (
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-card">
-                <TableRow className="text-[10px]">
+                <TableRow className="text-xs">
                   <TableHead className="w-8"></TableHead>
                   <TableHead>Symbol</TableHead>
                   <TableHead className="text-right">LTP</TableHead>
@@ -218,7 +218,7 @@ export default function Watchlist() {
                     </TableCell>
                     <TableCell className="text-right">
                       {w.ltp > 0 ? (
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${w.changePercent >= 0 ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"}`}>
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${w.changePercent >= 0 ? "bg-bullish/10 text-bullish" : "bg-bearish/10 text-bearish"}`}>
                           {w.changePercent >= 0 ? "+" : ""}{w.changePercent.toFixed(2)}%
                         </span>
                       ) : "—"}
@@ -277,17 +277,17 @@ export default function Watchlist() {
                 )}
                 {watchlistRows.length > 0 && (
                   <TableRow className="bg-accent/20 border-t-2 border-border font-medium">
-                    <TableCell className="text-[10px] text-muted-foreground py-2">
+                    <TableCell className="text-xs text-muted-foreground py-2">
                       {watchlistRows.length} symbols
                     </TableCell>
                     <TableCell />
                     <TableCell />
-                    <TableCell className="text-right text-[10px] py-2">
+                    <TableCell className="text-right text-xs py-2">
                       <span className="text-bullish">{watchlistRows.filter(w => (w.changePercent || 0) >= 0).length}↑</span>
                       {" / "}
                       <span className="text-bearish">{watchlistRows.filter(w => (w.changePercent || 0) < 0).length}↓</span>
                     </TableCell>
-                    <TableCell className={`text-right text-[10px] font-mono py-2 ${
+                    <TableCell className={`text-right text-xs font-mono py-2 ${
                       (watchlistRows.reduce((s, w) => s + (w.changePercent || 0), 0) / Math.max(watchlistRows.length, 1)) >= 0 ? "text-bullish" : "text-bearish"
                     }`}>
                       Avg: {((watchlistRows.reduce((s, w) => s + (w.changePercent || 0), 0) / Math.max(watchlistRows.length, 1))).toFixed(2)}%

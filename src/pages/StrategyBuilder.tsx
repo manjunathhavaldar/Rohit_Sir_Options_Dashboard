@@ -1,17 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLiveIndices } from "@/hooks/useMarketData";
 import { useSearchParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
-import { Plus, Trash2, TrendingUp, TrendingDown, Minus, Zap, Shield, Target, Copy, Check } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine } from "recharts";
+import { Plus, Trash2, TrendingUp, TrendingDown, Minus, Zap, Shield, Target, Copy, Check, Keyboard, HelpCircle } from "lucide-react";
 import { getPresetStrategies, calculatePayoff, calculateGreeks, estimateMargin, estimateProbOfProfit, type StrategyLeg } from "@/lib/mockData";
 import { getSpotPrice, getLotSize, getStepSize } from "@/lib/positionStore";
 import { PayoffMultiDTE } from "@/components/PayoffMultiDTE";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const outlookIcons = {
   Bullish: <TrendingUp className="h-3 w-3 text-bullish" />,
@@ -121,9 +123,31 @@ export default function StrategyBuilder() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Strategy Builder</h1>
-        <p className="text-sm text-muted-foreground">Build multi-leg strategies · Payoff analysis · Risk metrics</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Strategy Builder</h1>
+          <p className="text-sm text-muted-foreground">Build multi-leg strategies · Payoff analysis · Risk metrics</p>
+        </div>
+
+        {/* Shortcuts Info */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary transition-colors" title="Keyboard Shortcuts">
+              <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-border/50 bg-accent/30 font-semibold shadow-sm">?</kbd>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-4" align="end">
+            <p className="text-[11px] font-bold text-muted-foreground mb-3 uppercase tracking-wider flex items-center gap-2">
+              <Keyboard className="h-3.5 w-3.5" />
+              Keyboard Shortcuts
+            </p>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Focus Search</span><kbd className="px-1.5 py-0.5 rounded bg-muted border font-mono">⌘K</kbd></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Add Leg</span><kbd className="px-1.5 py-0.5 rounded bg-muted border font-mono">N</kbd></div>
+              <div className="flex justify-between items-center"><span className="text-muted-foreground">Toggle Action</span><kbd className="px-1.5 py-0.5 rounded bg-muted border font-mono">Space</kbd></div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -133,7 +157,7 @@ export default function StrategyBuilder() {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm">Strategy</CardTitle>
               <Select value={selectedPreset} onValueChange={handlePreset}>
-                <SelectTrigger className="w-[140px] h-7 text-[10px]"><SelectValue placeholder="Preset..." /></SelectTrigger>
+                <SelectTrigger className="w-[140px] h-7 text-xs"><SelectValue placeholder="Preset..." /></SelectTrigger>
                 <SelectContent>
                   {presets.map(p => (
                     <SelectItem key={p.name} value={p.name}>
@@ -147,17 +171,17 @@ export default function StrategyBuilder() {
               </Select>
             </div>
             {selectedStrategy && (
-              <CardDescription className="text-[10px] mt-1.5 leading-relaxed">
+              <div className="text-xs mt-1.5 leading-relaxed text-muted-foreground">
                 <div className="flex gap-1.5 mb-1">
-                  <Badge variant="outline" className="text-[9px] gap-1 h-4">
+                  <Badge variant="outline" className="text-[11px] gap-1 h-4">
                     {outlookIcons[selectedStrategy.outlook]} {selectedStrategy.outlook}
                   </Badge>
-                  <Badge variant="outline" className={`text-[9px] h-4 ${riskColors[selectedStrategy.riskLevel]}`}>
+                  <Badge variant="outline" className={`text-[11px] h-4 ${riskColors[selectedStrategy.riskLevel]}`}>
                     <Shield className="h-2.5 w-2.5" /> {selectedStrategy.riskLevel} Risk
                   </Badge>
                 </div>
                 {selectedStrategy.description}
-              </CardDescription>
+              </div>
             )}
           </CardHeader>
           <CardContent className="space-y-2.5">
@@ -165,9 +189,9 @@ export default function StrategyBuilder() {
               <div key={i} className="p-2.5 rounded-md bg-accent/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex gap-1">
-                    <Badge variant={leg.action === "BUY" ? "default" : "destructive"} className="text-[9px] h-4 px-1.5">{leg.action}</Badge>
-                    <Badge variant="outline" className="text-[9px] h-4 px-1.5">{leg.type}</Badge>
-                    <span className="text-[9px] text-muted-foreground">×{leg.lots}</span>
+                    <Badge variant={leg.action === "BUY" ? "default" : "destructive"} className="text-[11px] h-4 px-1.5">{leg.action}</Badge>
+                    <Badge variant="outline" className="text-[11px] h-4 px-1.5">{leg.type}</Badge>
+                    <span className="text-[11px] text-muted-foreground">×{leg.lots}</span>
                   </div>
                   <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => removeLeg(i)}>
                     <Trash2 className="h-3 w-3" />
@@ -175,20 +199,20 @@ export default function StrategyBuilder() {
                 </div>
                 <div className="grid grid-cols-2 gap-1.5">
                   <Select value={leg.action} onValueChange={v => updateLeg(i, "action", v)}>
-                    <SelectTrigger className="h-6 text-[10px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-6 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="BUY">BUY</SelectItem><SelectItem value="SELL">SELL</SelectItem></SelectContent>
                   </Select>
                   <Select value={leg.type} onValueChange={v => updateLeg(i, "type", v)}>
-                    <SelectTrigger className="h-6 text-[10px]"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-6 text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent><SelectItem value="CE">CE</SelectItem><SelectItem value="PE">PE</SelectItem></SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
-                  <div><Label className="text-[9px]">Strike</Label><Input type="number" value={leg.strike} onChange={e => updateLeg(i, "strike", Number(e.target.value))} className="h-6 text-[10px] font-mono" /></div>
-                  <div><Label className="text-[9px]">Lots</Label><Input type="number" value={leg.lots} onChange={e => updateLeg(i, "lots", Number(e.target.value))} className="h-6 text-[10px] font-mono" min={1} /></div>
-                  <div><Label className="text-[9px]">₹ Prem</Label><Input type="number" value={leg.premium} onChange={e => updateLeg(i, "premium", Number(e.target.value))} className="h-6 text-[10px] font-mono" /></div>
+                  <div><Label className="text-[11px]">Strike</Label><Input type="number" value={leg.strike} onChange={e => updateLeg(i, "strike", Number(e.target.value))} className="h-6 text-xs font-mono" /></div>
+                  <div><Label className="text-[11px]">Lots</Label><Input type="number" value={leg.lots} onChange={e => updateLeg(i, "lots", Number(e.target.value))} className="h-6 text-xs font-mono" min={1} /></div>
+                  <div><Label className="text-[11px]">₹ Prem</Label><Input type="number" value={leg.premium} onChange={e => updateLeg(i, "premium", Number(e.target.value))} className="h-6 text-xs font-mono" /></div>
                 </div>
-                <div className={`text-[9px] font-mono text-right ${leg.action === "BUY" ? "text-bearish" : "text-bullish"}`}>
+                <div className={`text-[11px] font-mono text-right ${leg.action === "BUY" ? "text-bearish" : "text-bullish"}`}>
                   {leg.action === "BUY" ? "Cost" : "Credit"}: ₹{(leg.premium * leg.lots * lotSize).toLocaleString("en-IN")}
                   <span className="text-muted-foreground ml-1">({leg.lots}×{lotSize}×{leg.premium})</span>
                 </div>
@@ -228,7 +252,7 @@ export default function StrategyBuilder() {
                       tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
                       tickFormatter={(v) => `₹${(v / 1000).toFixed(v >= 1000 || v <= -1000 ? 0 : 1)}K`}
                     />
-                    <Tooltip
+                    <RechartsTooltip
                       contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "11px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
                       formatter={(value: number) => [`₹${value.toLocaleString("en-IN")}`, "P&L"]}
                       labelFormatter={(label) => `Spot: ${Number(label).toLocaleString("en-IN")}`}
@@ -266,40 +290,40 @@ export default function StrategyBuilder() {
           {/* Key Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card className="bg-bullish/5 border-bullish/20"><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Max Profit</p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1"><TrendingUp className="h-3 w-3" /> Max Profit</p>
               <p className="text-base font-bold font-mono text-bullish">₹{stats.maxProfit.toLocaleString("en-IN")}</p>
             </CardContent></Card>
             <Card className="bg-bearish/5 border-bearish/20"><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground flex items-center gap-1"><TrendingDown className="h-3 w-3" /> Max Loss</p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1"><TrendingDown className="h-3 w-3" /> Max Loss</p>
               <p className="text-base font-bold font-mono text-bearish">₹{stats.maxLoss.toLocaleString("en-IN")}</p>
             </CardContent></Card>
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground flex items-center gap-1"><Target className="h-3 w-3" /> Risk:Reward</p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Target className="h-3 w-3" /> Risk:Reward</p>
               <p className="text-base font-bold font-mono">{stats.riskReward}</p>
             </CardContent></Card>
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground flex items-center gap-1"><Zap className="h-3 w-3" /> Prob. of Profit</p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1"><Zap className="h-3 w-3" /> Prob. of Profit</p>
               <p className={`text-base font-bold font-mono ${stats.probOfProfit > 50 ? "text-bullish" : "text-bearish"}`}>{stats.probOfProfit}%</p>
             </CardContent></Card>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground">Net Premium</p>
+              <p className="text-[11px] text-muted-foreground">Net Premium</p>
               <p className={`text-sm font-bold font-mono ${stats.netPremium >= 0 ? "text-bullish" : "text-bearish"}`}>
                 {stats.netPremium >= 0 ? "Credit" : "Debit"} ₹{Math.abs(stats.netPremium).toLocaleString("en-IN")}
               </p>
             </CardContent></Card>
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground">Est. Margin</p>
+              <p className="text-[11px] text-muted-foreground">Est. Margin</p>
               <p className="text-sm font-bold font-mono">₹{stats.margin.toLocaleString("en-IN")}</p>
             </CardContent></Card>
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground">Breakevens</p>
+              <p className="text-[11px] text-muted-foreground">Breakevens</p>
               <p className="text-xs font-mono">{stats.breakevens.length > 0 ? stats.breakevens.map(b => b.toLocaleString("en-IN")).join(", ") : "None"}</p>
             </CardContent></Card>
             <Card><CardContent className="pt-2.5 pb-2.5">
-              <p className="text-[9px] text-muted-foreground">Lot Size</p>
+              <p className="text-[11px] text-muted-foreground">Lot Size</p>
               <p className="text-sm font-bold font-mono">{lotSize} × {legs.reduce((s, l) => s + l.lots, 0)} lots</p>
             </CardContent></Card>
           </div>
@@ -354,7 +378,6 @@ export default function StrategyBuilder() {
   );
 }
 
-// Greek Card with visual indicator
 function GreekCard({ label, value, description, color, tooltip }: {
   label: string; value: number; description: string;
   color: "bullish" | "bearish" | "neutral"; tooltip: string;
@@ -368,15 +391,29 @@ function GreekCard({ label, value, description, color, tooltip }: {
   const barWidth = Math.min(Math.abs(value) * 5, 100);
 
   return (
-    <div className={`text-center p-3 rounded-lg ${c.bg} border ${c.border} transition-all duration-200 hover:shadow-sm group cursor-default`} title={tooltip}>
-      <p className="text-[10px] text-muted-foreground font-medium">{label}</p>
-      <p className={`text-xl font-bold font-mono ${c.text} mt-0.5`}>{value}</p>
-      {/* Intensity bar */}
-      <div className="h-1 bg-muted/50 rounded-full mt-2 mb-1 overflow-hidden">
-        <div className={`h-full rounded-full ${c.bar} transition-all duration-500`} style={{ width: `${barWidth}%` }} />
-      </div>
-      <p className="text-[9px] text-muted-foreground">{description}</p>
-    </div>
+    <TooltipProvider delayDuration={200}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className={`text-center p-3 rounded-lg ${c.bg} border ${c.border} transition-all duration-200 hover:shadow-sm hover:scale-[1.02] group cursor-default relative`}>
+            <div className="absolute top-2 right-2 opacity-30 group-hover:opacity-100 transition-opacity">
+              <HelpCircle className="h-3 w-3" />
+            </div>
+            <p className="text-xs text-muted-foreground font-medium flex items-center justify-center gap-1">
+              {label}
+            </p>
+            <p className={`text-xl font-bold font-mono ${c.text} mt-0.5`}>{value}</p>
+            {/* Intensity bar */}
+            <div className="h-1 bg-muted/50 rounded-full mt-2 mb-1 overflow-hidden">
+              <div className={`h-full rounded-full ${c.bar} transition-all duration-500`} style={{ width: `${barWidth}%` }} />
+            </div>
+            <p className="text-[11px] text-muted-foreground">{description}</p>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[200px] text-xs leading-relaxed" side="bottom">
+          {tooltip}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -411,7 +448,7 @@ function CopyTradeButton({ legs, stats, spotPrice, lotSize, selectedPreset }: {
   };
 
   return (
-    <Button variant="outline" size="sm" className="h-7 gap-1.5 text-[10px]" onClick={handleCopy}>
+    <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={handleCopy}>
       {copied ? <Check className="h-3 w-3 text-bullish" /> : <Copy className="h-3 w-3" />}
       {copied ? "Copied!" : "Export"}
     </Button>

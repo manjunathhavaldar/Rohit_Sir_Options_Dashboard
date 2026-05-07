@@ -256,7 +256,7 @@ function ConnectionStatusPanel() {
                   src.status === "offline" ? "bg-red-500" : "bg-zinc-500"
                 }`} />
               </div>
-              <p className="text-[10px] text-muted-foreground truncate">{src.detail}</p>
+              <p className="text-xs text-muted-foreground truncate">{src.detail}</p>
             </div>
             {src.name.startsWith("Dhan API") && (
               <Button

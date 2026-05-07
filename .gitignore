@@ -36,6 +36,9 @@ coverage/
 # Temp
 *.tsbuildinfo
 
+# Proxy server cache
+.cache/
+
 # Lovable / AI tool artifacts
 .lovable/
 .gemini/

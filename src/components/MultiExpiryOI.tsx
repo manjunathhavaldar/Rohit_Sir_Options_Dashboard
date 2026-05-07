@@ -160,14 +160,14 @@ export function MultiExpiryOI({ symbol }: Props) {
               }`}
             >
               {label}
-              {idx === 0 && <span className="ml-1 text-[9px] opacity-60">(Weekly)</span>}
-              {idx === 1 && <span className="ml-1 text-[9px] opacity-60">(Next)</span>}
-              {idx === 2 && <span className="ml-1 text-[9px] opacity-60">(Monthly)</span>}
+              {idx === 0 && <span className="ml-1 text-[11px] opacity-60">(Weekly)</span>}
+              {idx === 1 && <span className="ml-1 text-[11px] opacity-60">(Next)</span>}
+              {idx === 2 && <span className="ml-1 text-[11px] opacity-60">(Monthly)</span>}
             </button>
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <Label className="text-[10px] text-muted-foreground">Show OI Change</Label>
+          <Label className="text-xs text-muted-foreground">Show OI Change</Label>
           <Switch checked={showOIChange} onCheckedChange={setShowOIChange} />
         </div>
       </div>
@@ -246,7 +246,7 @@ export function MultiExpiryOI({ symbol }: Props) {
                       <span className="text-xs font-bold font-mono">{signal.strike.toLocaleString("en-IN")}</span>
                       <Badge
                         variant="outline"
-                        className={`text-[9px] h-4 ${
+                        className={`text-[11px] h-4 ${
                           signal.type === "bullish" ? "text-bullish border-bullish/30" :
                           signal.type === "bearish" ? "text-bearish border-bearish/30" : ""
                         }`}
@@ -254,7 +254,7 @@ export function MultiExpiryOI({ symbol }: Props) {
                         {signal.signal}
                       </Badge>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{signal.detail}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{signal.detail}</p>
                   </div>
                 </div>
               ))}

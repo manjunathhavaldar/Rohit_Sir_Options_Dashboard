@@ -15,8 +15,8 @@
 
 import http from "node:http";
 import { URL } from "node:url";
-import { readFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from "node:fs";
+import { resolve, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { WebSocketServer, WebSocket } from "ws";
 
@@ -53,6 +53,52 @@ const cache = new Map();
 const lastGoodCache = new Map();
 const LAST_GOOD_TTL = 18 * 60 * 60 * 1000; // 18 hours
 
+// ── Disk-backed persistent cache directory ──
+const CACHE_DIR = resolve(__dirname, ".cache");
+try { mkdirSync(CACHE_DIR, { recursive: true }); } catch { /* ignore */ }
+
+function diskCacheKeyToFilename(key) {
+  return key.replace(/[^a-zA-Z0-9_-]/g, "_") + ".json";
+}
+
+function setLastGoodToDisk(key, data) {
+  try {
+    const filepath = join(CACHE_DIR, diskCacheKeyToFilename(key));
+    writeFileSync(filepath, JSON.stringify({ data, timestamp: Date.now() }), "utf-8");
+  } catch (e) {
+    console.warn(`  ⚠️ Failed to write cache to disk for ${key}:`, e.message);
+  }
+}
+
+function getLastGoodFromDisk(key) {
+  try {
+    const filepath = join(CACHE_DIR, diskCacheKeyToFilename(key));
+    if (!existsSync(filepath)) return null;
+    const raw = JSON.parse(readFileSync(filepath, "utf-8"));
+    if (raw && raw.data && raw.timestamp && Date.now() - raw.timestamp < LAST_GOOD_TTL) {
+      return raw;
+    }
+  } catch { /* ignore corrupt files */ }
+  return null;
+}
+
+// Rehydrate lastGoodCache from disk on startup
+try {
+  const files = readdirSync(CACHE_DIR).filter(f => f.endsWith(".json"));
+  for (const file of files) {
+    try {
+      const raw = JSON.parse(readFileSync(join(CACHE_DIR, file), "utf-8"));
+      if (raw?.data && raw?.timestamp && Date.now() - raw.timestamp < LAST_GOOD_TTL) {
+        // Reconstruct the key from the filename (reverse of the sanitization)
+        lastGoodCache.set(file.replace(/\.json$/, ""), raw);
+      }
+    } catch { /* skip corrupt entries */ }
+  }
+  if (lastGoodCache.size > 0) {
+    console.log(`  📦 Rehydrated ${lastGoodCache.size} last-good cache entries from disk`);
+  }
+} catch { /* .cache dir doesn't exist yet, will be created on first write */ }
+
 function getCached(key) {
   const entry = cache.get(key);
   if (entry && Date.now() < entry.expiry) return entry.data;
@@ -69,13 +115,23 @@ function setCache(key, data, ttlMs) {
 }
 
 function setLastGood(key, data) {
-  lastGoodCache.set(key, { data, timestamp: Date.now() });
+  lastGoodCache.set(diskCacheKeyToFilename(key), { data, timestamp: Date.now() });
+  setLastGoodToDisk(key, data); // Persist to disk
 }
 
 function getLastGood(key) {
-  const entry = lastGoodCache.get(key);
+  // Try in-memory first
+  const diskKey = diskCacheKeyToFilename(key);
+  const entry = lastGoodCache.get(diskKey);
   if (entry && Date.now() - entry.timestamp < LAST_GOOD_TTL) return entry;
-  if (entry) lastGoodCache.delete(key);
+  if (entry) lastGoodCache.delete(diskKey);
+  
+  // Fallback to disk
+  const diskEntry = getLastGoodFromDisk(key);
+  if (diskEntry) {
+    lastGoodCache.set(diskKey, diskEntry); // Rehydrate in-memory
+    return diskEntry;
+  }
   return null;
 }
 
@@ -92,10 +148,10 @@ const INDEX_SECURITY_IDS = {
 };
 
 const UNDERLYING_MAP = {
-  NIFTY: { underlyingScrip: 13, expirySegment: "NSE_FNO" },
-  BANKNIFTY: { underlyingScrip: 25, expirySegment: "NSE_FNO" },
-  FINNIFTY: { underlyingScrip: 27, expirySegment: "NSE_FNO" },
-  MIDCPNIFTY: { underlyingScrip: 442, expirySegment: "NSE_FNO" },
+  NIFTY: { underlyingScrip: 13, expirySegment: "NSE_FNO", ocSegment: "IDX_I" },
+  BANKNIFTY: { underlyingScrip: 25, expirySegment: "NSE_FNO", ocSegment: "IDX_I" },
+  FINNIFTY: { underlyingScrip: 27, expirySegment: "NSE_FNO", ocSegment: "IDX_I" },
+  MIDCPNIFTY: { underlyingScrip: 442, expirySegment: "NSE_FNO", ocSegment: "IDX_I" },
 };
 
 async function dhanFetch(path, body, method = "POST", customClientId, customAccessToken) {
@@ -166,9 +222,9 @@ async function handleDhanProxy(params, userClientId, userAccessToken) {
 
         const body = {
           UnderlyingScrip: underlying.underlyingScrip,
-          UnderlyingSeg: underlying.expirySegment,
+          UnderlyingSeg: underlying.ocSegment,
         };
-        if (expiryDate) body.ExpiryDate = expiryDate;
+        if (expiryDate) body.Expiry = expiryDate;
 
         let result;
         try {
@@ -177,7 +233,7 @@ async function handleDhanProxy(params, userClientId, userAccessToken) {
           // If "Invalid Expiry Date" error, retry without expiry
           if (ocErr.message.includes("Invalid Expiry") && expiryDate) {
             console.log(`  🔄 Retrying OC for ${symbol} without expiry date...`);
-            const retryBody = { UnderlyingScrip: underlying.underlyingScrip, UnderlyingSeg: underlying.expirySegment };
+            const retryBody = { UnderlyingScrip: underlying.underlyingScrip, UnderlyingSeg: underlying.ocSegment };
             result = await dhanFetch("/optionchain", retryBody, "POST", userClientId, userAccessToken);
           } else {
             throw ocErr;
@@ -214,9 +270,11 @@ async function handleDhanProxy(params, userClientId, userAccessToken) {
           return { data: afterHoursResult, cacheHit: false };
         }
         // No cache — return clean empty response instead of 500
-        console.log(`  ⚠️ OC unavailable for ${symbol} (no cache): ${e.message}`);
+        const is429 = e.message.includes("429") || e.message.includes("Too many");
+        const cacheTTL = is429 ? 120000 : 60000; // 2min for rate-limits, 1min for others
+        console.log(`  ⚠️ OC unavailable for ${symbol} (no cache): ${e.message}${is429 ? " [rate-limited, backing off 2min]" : ""}`);
         const emptyResult = { status: "success", data: { oc: {} }, afterHours: true };
-        setCache(cacheKey, emptyResult, 60000); // Cache for 1min to avoid hammering
+        setCache(cacheKey, emptyResult, cacheTTL);
         return { data: emptyResult, cacheHit: false };
       }
     }
@@ -347,13 +405,29 @@ async function handleDhanProxy(params, userClientId, userAccessToken) {
 
       if (!secId) throw new Error("Missing securityId parameter");
 
-      // Default: last 2 trading days
+      const isDailyCandle = interval === "D";
+
+      // Default: last 2 trading days for intraday, 1 year for daily
       const now = new Date();
-      const twoDaysAgo = new Date(now);
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 3); // 3 days back to cover weekends
+      const defaultDaysBack = isDailyCandle ? 365 : 3;
+      const defaultFrom = new Date(now);
+      defaultFrom.setDate(defaultFrom.getDate() - defaultDaysBack);
       
-      const from = fromDate || `${twoDaysAgo.toISOString().split("T")[0]} 09:15`;
+      let from = fromDate || `${defaultFrom.toISOString().split("T")[0]} 09:15`;
       const to = toDate || `${now.toISOString().split("T")[0]} 15:30`;
+
+      // Enforce Dhan's 90-day limit for intraday charts (DH-905)
+      if (!isDailyCandle) {
+        const fromDateObj = new Date(from.split(" ")[0]);
+        const toDateObj = new Date(to.split(" ")[0]);
+        const daysDiff = Math.ceil((toDateObj - fromDateObj) / (1000 * 60 * 60 * 24));
+        if (daysDiff > 90) {
+          const clampedFrom = new Date(toDateObj);
+          clampedFrom.setDate(clampedFrom.getDate() - 89);
+          from = `${clampedFrom.toISOString().split("T")[0]} 09:15`;
+          console.log(`  📐 Clamped intraday date range to 90 days (was ${daysDiff}d)`);
+        }
+      }
 
       const historicalCacheKey = `dhan:hist:${secId}:${interval}:${from}:${to}`;
       const cachedHist = getCached(historicalCacheKey);
@@ -361,15 +435,14 @@ async function handleDhanProxy(params, userClientId, userAccessToken) {
 
       // "D" = Daily candles → /charts/historical (no interval param needed)
       // Anything else ("1","5","15","60") = intraday → /charts/intraday
-      const isDailyCandle = interval === "D";
       const apiPath = isDailyCandle ? "/charts/historical" : "/charts/intraday";
 
       const body = {
         securityId: secId,
         exchangeSegment: exchSeg,
         instrument,
-        fromDate: from,
-        toDate: to,
+        fromDate: from.includes(" ") ? from : `${from} 09:15`,
+        toDate: to.includes(" ") ? to : `${to} 15:30`,
         expiryCode: 0,
         oi: exchSeg === "NSE_FNO",
       };
@@ -399,23 +472,53 @@ let nseSessionExpiry = 0;
 async function getNSESession() {
   if (nseSessionCookies && Date.now() < nseSessionExpiry) return nseSessionCookies;
 
-  const res = await fetch(NSE_BASE, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.5",
-      "Accept-Encoding": "gzip, deflate, br",
-    },
-  });
-  const setCookie = res.headers.get("set-cookie") || "";
-  nseSessionCookies = setCookie
-    .split(",")
-    .map(c => c.split(";")[0].trim())
-    .filter(Boolean)
-    .join("; ");
-  nseSessionExpiry = Date.now() + 120000;
-  await res.text();
-  return nseSessionCookies;
+  try {
+    const res = await fetch(NSE_BASE, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+        Connection: "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+      },
+      redirect: "follow",
+    });
+    
+    // Extract ALL set-cookie headers
+    const rawHeaders = res.headers.raw ? res.headers.raw() : {};
+    const setCookieHeaders = rawHeaders["set-cookie"] || [];
+    
+    // Fallback: try standard getSetCookie()
+    let cookies = [];
+    if (setCookieHeaders.length > 0) {
+      cookies = setCookieHeaders.map(c => c.split(";")[0].trim()).filter(Boolean);
+    } else {
+      // Node 18+ approach
+      const setCookie = res.headers.get("set-cookie") || "";
+      cookies = setCookie
+        .split(",")
+        .map(c => c.split(";")[0].trim())
+        .filter(c => c.includes("="));
+    }
+    
+    nseSessionCookies = cookies.join("; ");
+    nseSessionExpiry = Date.now() + 90000; // 90s session
+    await res.text(); // Consume response body
+    
+    if (nseSessionCookies) {
+      console.log(`  🍪 NSE session established (${cookies.length} cookies)`);
+    } else {
+      console.warn("  ⚠️ NSE session: no cookies received");
+    }
+    
+    return nseSessionCookies;
+  } catch (e) {
+    console.error(`  ❌ NSE session error: ${e.message}`);
+    return "";
+  }
 }
 
 async function handleNSEProxy(params) {
@@ -425,8 +528,6 @@ async function handleNSEProxy(params) {
 
   const cached = getCached(cacheKey);
   if (cached) return { data: cached, cacheHit: true };
-
-  const cookies = await getNSESession();
 
   let apiPath;
   switch (endpoint) {
@@ -458,21 +559,74 @@ async function handleNSEProxy(params) {
       throw new Error(`Unknown NSE endpoint: ${endpoint}`);
   }
 
-  const nseRes = await fetch(`${NSE_BASE}${apiPath}`, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      Accept: "application/json, text/plain, */*",
-      "Accept-Language": "en-US,en;q=0.5",
-      "Accept-Encoding": "gzip, deflate, br",
-      Referer: "https://www.nseindia.com/option-chain",
-      Cookie: cookies,
-    },
-  });
+  const lastGoodKey = `lastgood:nse:${endpoint}:${symbol || ""}`;
+  
+  // Try NSE with session retry
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const cookies = await getNSESession();
+      const nseRes = await fetch(`${NSE_BASE}${apiPath}`, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          Accept: "application/json, text/plain, */*",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept-Encoding": "gzip, deflate",
+          Referer: "https://www.nseindia.com/option-chain",
+          Cookie: cookies,
+        },
+      });
 
-  const data = await nseRes.json();
-  const ttl = endpoint === "fii-dii" ? 300000 : 30000; // FII/DII: 5min cache, others: 30s
-  setCache(cacheKey, data, ttl);
-  return { data, cacheHit: false };
+      if (!nseRes.ok) {
+        throw new Error(`NSE HTTP ${nseRes.status}`);
+      }
+
+      const contentType = nseRes.headers.get("content-type") || "";
+      if (!contentType.includes("json")) {
+        // NSE returned HTML (likely a captcha or redirect) — invalidate session
+        nseSessionCookies = "";
+        nseSessionExpiry = 0;
+        if (attempt === 0) {
+          console.log(`  🔄 NSE returned non-JSON for ${endpoint}, retrying with fresh session...`);
+          continue; // retry
+        }
+        throw new Error("NSE returned non-JSON response (possible captcha)");
+      }
+
+      const data = await nseRes.json();
+      
+      // Validate the data is not empty/malformed
+      const isValidOC = endpoint === "option-chain" ? (data?.records?.data?.length > 0) : true;
+      const isValidData = data && Object.keys(data).length > 0 && isValidOC;
+      
+      if (isValidData) {
+        setLastGood(lastGoodKey, data);
+      }
+      
+      const ttl = endpoint === "fii-dii" ? 300000 : 30000;
+      setCache(cacheKey, data, ttl);
+      return { data, cacheHit: false };
+    } catch (nseErr) {
+      if (attempt === 0) {
+        // Invalidate session and retry
+        nseSessionCookies = "";
+        nseSessionExpiry = 0;
+        console.log(`  ⚠️ NSE fetch failed for ${endpoint} (attempt ${attempt + 1}): ${nseErr.message}`);
+        continue;
+      }
+      console.warn(`  ❌ NSE fetch failed for ${endpoint}: ${nseErr.message}`);
+    }
+  }
+  
+  // Both attempts failed — try last-good cache
+  const lastGood = getLastGood(lastGoodKey);
+  if (lastGood) {
+    console.log(`  📦 Serving last-good NSE data for ${endpoint}:${symbol || ""}`);
+    setCache(cacheKey, lastGood.data, 60000);
+    return { data: lastGood.data, cacheHit: false };
+  }
+  
+  // No cache — return empty object
+  return { data: {}, cacheHit: false };
 }
 
 // ══════════════════════════════════════════════
@@ -571,6 +725,109 @@ async function handleTradingViewScan(params) {
   console.log(`  📊 TradingView ${scanType}: ${stocks.length} results`);
   setCache(cacheKey, { stocks, totalCount: rawData.totalCount, timestamp: Date.now() }, 15000); // 15s cache
   return { data: { stocks, totalCount: rawData.totalCount, timestamp: Date.now() }, cacheHit: false };
+}
+
+// ══════════════════════════════════════════════
+// ── SECTION 3c: Yahoo Finance Historical Charts ──
+// ══════════════════════════════════════════════
+
+// Yahoo symbol mapping for Indian stocks & indices
+const YAHOO_SYMBOL_MAP = {
+  // Indices
+  "NIFTY": "^NSEI",
+  "BANKNIFTY": "^NSEBANK",
+  "FINNIFTY": "NIFTY_FIN_SERVICE.NS",
+  "MIDCPNIFTY": "NIFTY_MID_SELECT.NS",
+  "INDIAVIX": "^INDIAVIX",
+  "SENSEX": "^BSESN",
+  // F&O Stocks — append .NS for NSE
+};
+
+function toYahooSymbol(symbol) {
+  if (YAHOO_SYMBOL_MAP[symbol]) return YAHOO_SYMBOL_MAP[symbol];
+  // Default: append .NS for NSE equities
+  return `${symbol}.NS`;
+}
+
+// Yahoo Finance interval mapping
+function toYahooInterval(interval) {
+  switch (interval) {
+    case "1": return "1m";
+    case "5": return "5m";
+    case "15": return "15m";
+    case "60": return "1h";
+    case "D": return "1d";
+    default: return "1d";
+  }
+}
+
+async function handleYahooChart(params) {
+  const symbol = params.get("symbol");
+  const interval = params.get("interval") || "D";
+  const fromDate = params.get("fromDate");
+  const toDate = params.get("toDate");
+
+  if (!symbol) throw new Error("Missing symbol parameter");
+
+  const yahooSymbol = toYahooSymbol(symbol.toUpperCase());
+  const yahooInterval = toYahooInterval(interval);
+
+  const cacheKey = `yahoo:chart:${yahooSymbol}:${yahooInterval}:${fromDate}:${toDate}`;
+  const cached = getCached(cacheKey);
+  if (cached) return { data: cached, cacheHit: true };
+
+  // Build Yahoo Finance chart URL
+  const now = Math.floor(Date.now() / 1000);
+  let period1, period2;
+
+  if (fromDate) {
+    period1 = Math.floor(new Date(fromDate).getTime() / 1000);
+  } else {
+    period1 = now - (365 * 24 * 60 * 60); // Default 1 year
+  }
+  period2 = toDate ? Math.floor(new Date(toDate).getTime() / 1000) : now;
+
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?period1=${period1}&period2=${period2}&interval=${yahooInterval}&includePrePost=false`;
+
+  console.log(`  📈 Yahoo Finance: ${symbol} → ${yahooSymbol} (${yahooInterval}, ${fromDate || "1y"} → ${toDate || "now"})`);
+
+  const res = await fetch(yahooUrl, {
+    headers: {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Yahoo Finance error [${res.status}]: ${errText.substring(0, 200)}`);
+  }
+
+  const raw = await res.json();
+  const result = raw?.chart?.result?.[0];
+  if (!result) throw new Error("Yahoo Finance returned empty result");
+
+  const timestamps = result.timestamp || [];
+  const quotes = result.indicators?.quote?.[0] || {};
+
+  // Convert to our standard format (matching Dhan's structure)
+  const data = {
+    status: "success",
+    source: "yahoo",
+    data: {
+      open: quotes.open || [],
+      high: quotes.high || [],
+      low: quotes.low || [],
+      close: quotes.close || [],
+      volume: quotes.volume || [],
+      timestamp: timestamps,
+    },
+  };
+
+  const ttl = interval === "D" ? 300000 : 60000; // 5min for daily, 1min for intraday
+  setCache(cacheKey, data, ttl);
+  console.log(`  ✅ Yahoo Finance: ${symbol} — ${timestamps.length} candles fetched`);
+  return { data, cacheHit: false };
 }
 
 // ══════════════════════════════════════════════
@@ -789,6 +1046,11 @@ function connectDhanWebSocket(clientId, accessToken) {
   dhanWS.on("error", (err) => {
     console.error("  ❌ Dhan WebSocket error:", err.message);
     dhanWSConnected = false;
+    // If rate-limited (429), use longer backoff
+    if (err.message && err.message.includes("429")) {
+      dhanWSReconnectDelay = 120000; // 2 minutes
+      console.log("  ⏳ Rate-limited by Dhan. Will retry in 120s...");
+    }
   });
 
   // Respond to server pings automatically (ws library handles this by default)
@@ -796,7 +1058,9 @@ function connectDhanWebSocket(clientId, accessToken) {
 
 function scheduleDhanReconnect() {
   if (dhanWSReconnectTimer) clearTimeout(dhanWSReconnectTimer);
-  dhanWSReconnectDelay = Math.min(dhanWSReconnectDelay * 2, 30000);
+  // Only double the delay if not already set higher (e.g. by rate-limit handler)
+  const doubled = Math.min(dhanWSReconnectDelay * 2, 30000);
+  dhanWSReconnectDelay = Math.max(dhanWSReconnectDelay, doubled);
   console.log(`  🔄 Reconnecting in ${dhanWSReconnectDelay / 1000}s...`);
   dhanWSReconnectTimer = setTimeout(() => {
     connectDhanWebSocket(dhanWSCredentials.clientId, dhanWSCredentials.accessToken);
@@ -905,6 +1169,11 @@ const server = http.createServer(async (req, res) => {
       res.setHeader("X-Cache", cacheHit ? "HIT" : "MISS");
       res.writeHead(200);
       res.end(JSON.stringify(data));
+    } else if (url.pathname === "/api/yahoo-chart") {
+      const { data, cacheHit } = await handleYahooChart(params);
+      res.setHeader("X-Cache", cacheHit ? "HIT" : "MISS");
+      res.writeHead(200);
+      res.end(JSON.stringify(data));
     } else if (url.pathname === "/api/test-connection") {
       // Test Dhan API connection with user credentials
       const userClientId = req.headers["x-dhan-client-id"];
@@ -934,11 +1203,12 @@ const server = http.createServer(async (req, res) => {
           dhan: !!process.env.DHAN_CLIENT_ID,
           tradingview: true,
           nse: true,
+          yahoo: true,
         },
       }));
     } else {
       res.writeHead(404);
-      res.end(JSON.stringify({ error: "Not found. Use /api/dhan-proxy, /api/nse-proxy, /api/tv-scan, or /ws" }));
+      res.end(JSON.stringify({ error: "Not found. Use /api/dhan-proxy, /api/nse-proxy, /api/tv-scan, /api/yahoo-chart, or /ws" }));
     }
   } catch (err) {
     console.error(`[Proxy Error] ${url.pathname}:`, err.message);

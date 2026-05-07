@@ -49,7 +49,7 @@ function SparklinePlaceholder({ isPositive }: { isPositive: boolean }) {
   return (
     <div className="h-full w-full flex items-end gap-[2px] px-2 opacity-20">
       {Array.from({ length: 30 }).map((_, i) => {
-        const height = 15 + Math.sin(i * 0.5) * 12 + Math.random() * 8;
+        const height = 22 + Math.sin(i * 0.52) * 13 + ((i * 7) % 9);
         return (
           <div
             key={i}
@@ -101,14 +101,14 @@ function IndexCard({ index, idx, isLive, onClick }: { index: IndexData; idx: num
   const dayRangePosition = dayRange > 0 ? ((index.ltp - index.low) / dayRange) * 100 : 50;
 
   return (
-    <Card className="cursor-pointer group hover:border-primary/20 transition-all duration-300 hover:shadow-card-hover relative overflow-hidden" onClick={onClick}>
+    <Card className="cursor-pointer group min-h-[178px] hover:border-primary/20 transition-all duration-200 hover:shadow-card-hover relative overflow-hidden" onClick={onClick}>
       {/* Subtle background glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      <CardContent className="pt-4 pb-4">
+      <CardContent className="px-4 pt-4 pb-4">
         <div className="flex items-start justify-between mb-3">
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5 mb-1">
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{index.name}</p>
+              <p className="max-w-[180px] text-[11px] leading-tight text-muted-foreground font-semibold uppercase tracking-[0.04em]">{index.name}</p>
               {isLive && <Radio className="h-3 w-3 text-bullish animate-pulse" />}
               {isAfterHours && (
                 <span className="flex items-center gap-1 text-xs font-bold text-amber-500/90 uppercase tracking-wider">
@@ -116,7 +116,7 @@ function IndexCard({ index, idx, isLive, onClick }: { index: IndexData; idx: num
                 </span>
               )}
             </div>
-            <p className="text-2xl font-bold font-mono tabular-nums tracking-tight transition-colors duration-300">
+            <p className="text-[25px] font-bold font-mono tabular-nums leading-none transition-colors duration-300">
               {index.ltp.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </p>
           </div>
